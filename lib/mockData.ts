@@ -1,0 +1,3 @@
+import type {ActivityItem,Resident} from './types';
+export const mockResidents:Resident[]=[{id:1,name:'Sample Resident',national_id:'A000000',house:'Example House',phone:'7000000',vote_status:'not-decided',phone_status:'need-call',reach_status:'not-reached',d2d_status:'not-visited',support_level:'not-guaranteed',remarks:''}];
+export const mockActivity:ActivityItem[]=[{id:'1',title:'Door-to-door list prepared',detail:'Unvisited homes are ready for follow-up.',time:'Today',type:'visit'},{id:'2',title:'Voting statuses reviewed',detail:'Pending records were grouped for action.',time:'Today',type:'vote'}];
