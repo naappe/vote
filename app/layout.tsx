@@ -5,10 +5,7 @@ export const metadata:Metadata={
   title:'CampaignOps',
   description:'Villimalé campaign management dashboard',
   icons:{
-    icon:[
-      {url:'/Vote/favicon.svg',type:'image/svg+xml'},
-      {url:'/Vote/favicon.ico',sizes:'any'}
-    ],
+    icon:{url:'/Vote/favicon.svg',type:'image/svg+xml'},
     shortcut:'/Vote/favicon.svg',
     apple:'/Vote/favicon.svg'
   }
