@@ -1,1 +1,67 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f4f7f1"><title>Vote Garden</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23789b83'/%3E%3Cpath d='M19 17l13 31 13-31h-9l-4 12-4-12z' fill='white'/%3E%3C/svg%3E"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head><body><div class="leaf leaf-one"></div><div class="leaf leaf-two"></div><header class="topbar"><a class="brand" href="#"><span class="logo">V</span><span><b>Vote Garden</b><small>Villimalé campaign care</small></span></a><nav><button class="active">Today</button><button>Residents</button><button>Calls</button><button>Visits</button><button>Reports</button></nav><div class="header-actions"><button class="icon-btn" id="searchButton" aria-label="Search">⌕</button><button class="profile">MM</button></div></header><main><section class="welcome reveal"><div><span class="eyebrow">Live campaign care</span><h1>Good evening.<br><em>Everything is gently moving forward.</em></h1><p>A calm place to care for residents, follow up thoughtfully, and keep today's work clear.</p><div class="welcome-actions"><button class="primary" id="continueButton">Continue today's work</button><button class="quiet" id="viewResidents">View residents</button></div></div><aside class="daily-note"><span>Today's wellbeing</span><div class="progress-ring" id="progressRing"><div><strong id="progressPercent">0%</strong><small>reached</small></div></div><p id="healthMessage">Connecting to the campaign database…</p></aside></section><section class="care-grid reveal"><article class="care-card mint"><span class="card-icon">☏</span><div><small>Calls to make</small><strong id="callsCount">—</strong><p>Residents still needing contact</p></div><button>Begin</button></article><article class="care-card sage"><span class="card-icon">⌂</span><div><small>Homes to visit</small><strong id="visitsCount">—</strong><p>Residents not yet visited</p></div><button>Open</button></article><article class="care-card sand"><span class="card-icon">✓</span><div><small>Status reviews</small><strong id="reviewsCount">—</strong><p>Residents still undecided</p></div><button>Review</button></article></section><section class="content-grid reveal"><article class="paper priorities"><div class="section-head"><div><span class="eyebrow">Gentle focus</span><h2>Today's priorities</h2></div><button class="more">•••</button></div><div class="priority-list"><button><i class="dot green"></i><span><b>Call priority residents</b><small id="callsDetail">Loading live records…</small></span><em>Start</em></button><button><i class="dot peach"></i><span><b>Check unvisited homes</b><small id="visitsDetail">Loading live records…</small></span><em>Plan</em></button><button><i class="dot lilac"></i><span><b>Review vote statuses</b><small id="reviewsDetail">Loading live records…</small></span><em>Open</em></button></div></article><article class="paper mood"><span class="eyebrow">Campaign health</span><h2 id="healthTitle">Connecting…</h2><p id="healthText">Live progress will appear after the database responds.</p><div class="health-bars"><label><span>Calls</span><b id="callsPercent">0%</b><i><u id="callsBar" style="width:0%"></u></i></label><label><span>Visits</span><b id="visitsPercent">0%</b><i><u id="visitsBar" style="width:0%"></u></i></label><label><span>Assignments</span><b id="assignPercent">0%</b><i><u id="assignBar" style="width:0%"></u></i></label></div></article></section><section class="paper people reveal"><div class="section-head people-head"><div><span class="eyebrow">People to care for</span><h2>Residents needing attention</h2><small id="databaseStatus">Connecting to Supabase…</small></div><div class="search-wrap"><input id="residentSearch" placeholder="Search name, ID, phone or address"><button id="filterButton">All</button></div></div><div class="resident-list" id="residentList"></div></section></main><div class="search-modal" id="searchModal"><div class="search-box"><div><input id="globalSearch" placeholder="Search the workspace..."><button id="closeSearch">Esc</button></div><button>Residents needing a call</button><button>Today's visit list</button><button>Open assignments</button><button>View campaign report</button></div></div><div class="toast" id="toast"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f4f7f3">
+  <title>Villimalé Campaign Master</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <header class="topbar">
+    <a class="brand" href="#dashboard"><span class="brand-mark">V</span><span><b>Villimalé Master</b><small>Campaign operations</small></span></a>
+    <nav id="mainNav">
+      <button class="active" data-target="dashboard">Dashboard</button>
+      <button data-target="residents">Residents</button>
+      <button data-filter="calls">Calls</button>
+      <button data-filter="visits">Door to door</button>
+      <button data-filter="reviews">Vote review</button>
+    </nav>
+    <div class="top-actions"><button id="globalSearchButton" class="icon-button" title="Search">⌕</button><span class="live-pill"><i></i> Live</span></div>
+  </header>
+
+  <main>
+    <section class="hero reveal" id="dashboard">
+      <div class="hero-copy"><span class="eyebrow">Master campaign workspace</span><h1>One calm place for every resident conversation.</h1><p>Calls, door-to-door visits, vote intention and remarks stay connected to the same resident record.</p><div class="hero-actions"><button class="primary" id="startWork">Start priority work</button><button class="secondary" id="openResidents">Open residents</button></div></div>
+      <aside class="progress-card"><div class="ring" id="progressRing"><div><strong id="progressPercent">0%</strong><small>reached</small></div></div><h3 id="healthTitle">Connecting…</h3><p id="healthText">Loading campaign progress.</p></aside>
+    </section>
+
+    <section class="metric-grid reveal">
+      <button class="metric mint" data-filter="calls"><span>☎</span><div><small>Need a call</small><strong id="callsCount">—</strong><p id="callsDetail">Loading records</p></div><em>Open →</em></button>
+      <button class="metric blue" data-filter="visits"><span>⌂</span><div><small>Door to door</small><strong id="visitsCount">—</strong><p id="visitsDetail">Loading records</p></div><em>Open →</em></button>
+      <button class="metric sand" data-filter="reviews"><span>✓</span><div><small>Vote review</small><strong id="reviewsCount">—</strong><p id="reviewsDetail">Loading records</p></div><em>Review →</em></button>
+      <button class="metric lilac" data-filter="remarks"><span>✎</span><div><small>Remarks recorded</small><strong id="remarksCount">—</strong><p>Resident context preserved</p></div><em>View →</em></button>
+    </section>
+
+    <section class="workspace-grid reveal">
+      <article class="panel"><div class="panel-head"><div><span class="eyebrow">Logical workflow</span><h2>Today’s operations</h2></div></div><div class="workflow">
+        <button data-filter="calls"><i>1</i><span><b>Call centre</b><small>Contact, outcome, vote status and remark</small></span><em id="callsPercent">0%</em></button>
+        <button data-filter="visits"><i>2</i><span><b>Door to door</b><small>Visit result, living status and doorstep remark</small></span><em id="visitsPercent">0%</em></button>
+        <button data-filter="reviews"><i>3</i><span><b>Vote confirmation</b><small>Will vote, undecided or not voting</small></span><em id="votePercent">0%</em></button>
+      </div></article>
+      <article class="panel"><span class="eyebrow">Campaign health</span><h2>Live completion</h2><div class="bars"><label><span>Calls completed</span><b id="callsBarText">0%</b><i><u id="callsBar"></u></i></label><label><span>Homes visited</span><b id="visitsBarText">0%</b><i><u id="visitsBar"></u></i></label><label><span>Vote decisions</span><b id="voteBarText">0%</b><i><u id="voteBar"></u></i></label></div></article>
+    </section>
+
+    <section class="panel residents-panel reveal" id="residents">
+      <div class="resident-toolbar"><div><span class="eyebrow">Master resident list</span><h2>Residents</h2><small id="databaseStatus">Connecting to Supabase…</small></div><div class="toolbar-actions"><div class="search-field"><span>⌕</span><input id="residentSearch" placeholder="Search name, ID, phone or address"></div><button id="filterButton" class="filter-button">All residents</button></div></div>
+      <div class="active-filter" id="activeFilterLabel">Showing all residents</div>
+      <div class="resident-list" id="residentList"></div>
+      <div class="pagination"><button id="prevPage">← Previous</button><span id="pageInfo">Page 1</span><button id="nextPage">Next →</button></div>
+    </section>
+  </main>
+
+  <div class="modal" id="residentModal" aria-hidden="true"><div class="modal-card"><button class="modal-close" id="closeResident">×</button><div class="resident-profile"><div class="large-avatar" id="modalAvatar">V</div><div><span class="eyebrow">Resident record</span><h2 id="modalName">Resident</h2><p id="modalIdentity"></p></div></div><div class="detail-chips" id="modalChips"></div>
+    <div class="form-grid">
+      <section class="form-section"><h3>Voting</h3><label>Vote intention<select id="voteStatus"><option value="not-decided">Not decided</option><option value="will-vote">Will vote</option><option value="not-vote">Not voting</option></select></label><label>Support level<select id="supportLevel"><option value="not-guaranteed">Not guaranteed</option><option value="guaranteed">Guaranteed</option></select></label></section>
+      <section class="form-section"><h3>Door to door</h3><label>Visit result<select id="d2dStatus"><option value="not-visited">Not visited</option><option value="reach">Reached</option><option value="not-home">Not home</option><option value="live-in-another-place">Lives elsewhere</option></select></label><label>Contact status<select id="reachStatus"><option value="not-reached">Not reached</option><option value="reached">Reached</option></select></label></section>
+      <section class="form-section full"><h3>Remarks</h3><textarea id="remarks" rows="4" placeholder="Add clear notes from call centre or door-to-door visit…"></textarea><small>Remarks stay attached to this resident record.</small></section>
+    </div><div class="modal-actions"><button class="secondary" id="cancelResident">Cancel</button><button class="primary" id="saveResident">Save resident update</button></div></div></div>
+
+  <div class="command" id="commandPalette"><div class="command-box"><div><span>⌕</span><input id="globalSearch" placeholder="Search residents or actions…"><button id="closeSearch">Esc</button></div><button data-filter="calls">Open residents needing calls</button><button data-filter="visits">Open unvisited homes</button><button data-filter="reviews">Review undecided voters</button></div></div>
+  <div class="toast" id="toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js"></script>
+</body></html>
