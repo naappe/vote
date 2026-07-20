@@ -29,15 +29,15 @@ export default function Sidebar(){
         <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[.2em] text-slate-400">{group.label}</p>
         <div className="space-y-1">{group.items.map(item=>{
           const active=pathname===item.href;
-          return <Link key={item.href} href={item.href} className={`flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold transition ${active?'bg-calm-100 text-calm-800 shadow-sm':'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}>
+          return <Link prefetch={false} key={item.href} href={item.href} className={`flex items-center justify-between rounded-xl px-3 py-3 text-sm font-semibold transition ${active?'bg-calm-100 text-calm-800 shadow-sm':'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`}>
             <span>{item.label}</span>{item.count&&<span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-slate-500 ring-1 ring-slate-200">{item.count}</span>}
           </Link>
         })}</div>
       </section>)}
     </nav>
     <div className="space-y-1 border-t border-slate-100 pt-4">
-      <Link href="/notifications" className="block rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50">Notifications</Link>
-      <Link href="/settings" className="block rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50">Settings</Link>
+      <Link prefetch={false} href="/notifications" className="block rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50">Notifications</Link>
+      <Link prefetch={false} href="/settings" className="block rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50">Settings</Link>
     </div>
   </aside>;
 }
