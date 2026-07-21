@@ -7,14 +7,19 @@ const groups=[
   {label:'Dashboard',href:'/',icon:'D'},
   {label:'Residents',href:'/voter-management/',icon:'R'},
  ]},
- {label:'Operations',items:[
+ {label:'Field Operations',items:[
   {label:'Call Center',href:'/call-center/',icon:'C'},
   {label:'Door-to-Door',href:'/door-to-door/',icon:'V'},
+  {label:'Assignments',href:'/assignments/',icon:'A'},
+  {label:'Remarks',href:'/remarks/',icon:'N'},
+ ]},
+ {label:'Election Operations',items:[
   {label:'Election Day',href:'/election-day/',icon:'E'},
+  {label:'Transportation',href:'/transportation/',icon:'T'},
  ]},
  {label:'Control',items:[
   {label:'Contact Verification',href:'/admin-verification/',icon:'Q'},
-  {label:'Reports',href:'/reports/',icon:'A'},
+  {label:'Reports',href:'/reports/',icon:'P'},
  ]},
 ];
 
@@ -24,6 +29,6 @@ export default function Sidebar(){
  return <aside className="sticky top-0 hidden h-screen w-[272px] shrink-0 flex-col border-r border-border bg-card lg:flex">
   <div className="border-b border-border px-6 py-6"><div className="flex items-center gap-3"><div className="brand-mark">VO</div><div><strong className="block text-base text-navy">Vote Operations</strong><span className="text-[11px] font-semibold uppercase tracking-[.14em] text-body">Villimalé 2026</span></div></div></div>
   <nav className="flex-1 space-y-7 overflow-y-auto px-4 py-6">{groups.map(group=><section key={group.label}><p className="nav-group-label">{group.label}</p><div className="mt-2 space-y-1">{group.items.map(item=>{const active=normalized(pathname)===normalized(item.href);return <Link prefetch={false} key={item.href} href={item.href} className={`nav-item ${active?'nav-item-active':''}`}><span className="nav-icon">{item.icon}</span><span>{item.label}</span></Link>})}</div></section>)}</nav>
-  <div className="border-t border-border px-5 py-4"><p className="text-xs font-semibold text-navy">Campaign administration</p><p className="mt-1 text-[11px] text-body">Resident identity is read-only. Results are stored by section.</p></div>
+  <div className="border-t border-border px-5 py-4"><p className="text-xs font-semibold text-navy">Section-based data</p><p className="mt-1 text-[11px] text-body">Resident identity stays read-only. Every result is stored in its own operational table.</p></div>
  </aside>
 }
