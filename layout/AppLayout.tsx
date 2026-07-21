@@ -1,9 +1,10 @@
 import type {ReactNode} from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import AuthGate from '../components/AuthGate';
 
 export default function AppLayout({children}:{children:ReactNode;showCampaignShowcase?:boolean}){
- return <div className="min-h-screen bg-calm-50 lg:flex">
+ return <AuthGate><div className="min-h-screen bg-calm-50 lg:flex">
   <Sidebar/>
   <div className="min-w-0 flex-1">
    <Header/>
@@ -11,5 +12,5 @@ export default function AppLayout({children}:{children:ReactNode;showCampaignSho
     {children}
    </main>
   </div>
- </div>;
+ </div></AuthGate>;
 }
