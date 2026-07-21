@@ -12,12 +12,18 @@ async function residentMap(ids:(number|string)[]){const map=new Map<string,Resid
 export async function getElectionBoard(){
  const residents:Resident[]=[];
  for(let from=0;;from+=1000){const {data,error}=await supabase.from('Resident').select('*').order('id').range(from,from+999);if(error)throw new Error(`Resident load failed: ${error.message}`);residents.push(...(data||[]).map(row=>({...row,phone:row.phone==null?null:String(row.phone)} as Resident)));if((data||[]).length<1000)break}
- const [electionResponse,transportResponse]=await Promise.all([supabase.from('election_day').select('*'),supabase.from('transportation').select('resident_id,transport_status')]);
+ const [electionResponse,transportResponse,callResponse]=await Promise.all([
+  supabase.from('election_day').select('*'),
+  supabase.from('transportation').select('resident_id,transport_status'),
+  supabase.from('call_center').select('resident_id,vote_status')
+ ]);
  if(electionResponse.error)throw new Error(`Election Day load failed: ${electionResponse.error.message}`);
  if(transportResponse.error)throw new Error(`Transportation load failed: ${transportResponse.error.message}`);
+ if(callResponse.error)throw new Error(`Vote intention load failed: ${callResponse.error.message}`);
  const elections=new Map((electionResponse.data||[]).map(row=>[String(row.resident_id),row as ElectionRecord]));
  const transport=new Map((transportResponse.data||[]).map(row=>[String(row.resident_id),String(row.transport_status||'not-needed')]));
- return residents.map(resident=>{const saved=elections.get(String(resident.id));return {resident,election:{resident_id:resident.id,reach_status:saved?.reach_status||'not-reached',has_voted:Boolean(saved?.has_voted),transport_status:transport.get(String(resident.id))||saved?.transport_status||'not-needed',voted_at:saved?.voted_at,reached_at:saved?.reached_at,contact_note:saved?.contact_note,updated_at:saved?.updated_at}}})
+ const intentions=new Map((callResponse.data||[]).map(row=>[String(row.resident_id),String(row.vote_status||'not-decided')]));
+ return residents.map(resident=>{const saved=elections.get(String(resident.id));const merged={...resident,vote_status:(intentions.get(String(resident.id))||'not-decided') as Resident['vote_status']};return {resident:merged,election:{resident_id:resident.id,reach_status:saved?.reach_status||'not-reached',has_voted:Boolean(saved?.has_voted),transport_status:transport.get(String(resident.id))||saved?.transport_status||'not-needed',voted_at:saved?.voted_at,reached_at:saved?.reached_at,contact_note:saved?.contact_note,updated_at:saved?.updated_at}}})
 }
 
 export async function saveElectionStatus(residentId:number|string,changes:Partial<ElectionRecord>){const now=new Date().toISOString();const payload:any={resident_id:residentId,...changes,updated_at:now};if(changes.reach_status==='reached')payload.reached_at=now;if(changes.has_voted===true)payload.voted_at=now;if(changes.has_voted===false)payload.voted_at=null;const {error}=await supabase.from('election_day').upsert(payload,{onConflict:'resident_id'});if(error)throw new Error(`Election Day save failed: ${error.message}`)}
@@ -26,27 +32,5 @@ export async function saveTransportation(residentId:number|string,changes:Partia
 export async function createWorkflowShare(input:{workflow:string;title:string;status_filter?:string;resident_ids?:number[];can_update?:boolean;expires_at?:string|null}){const {data,error}=await supabase.from('workflow_shares').insert({...input,can_update:Boolean(input.can_update),active:true}).select('*').single();if(error)throw new Error(`Share link creation failed: ${error.message}`);return data as WorkflowShare}
 export async function getWorkflowShare(token:string){const {data,error}=await supabase.from('workflow_shares').select('*').eq('token',token).maybeSingle();if(error)throw new Error(`Share link load failed: ${error.message}`);if(!data||!data.active)throw new Error('This share link is invalid or expired.');if(data.expires_at&&new Date(data.expires_at).getTime()<Date.now())throw new Error('This share link has expired.');return data as WorkflowShare}
 export async function getSharedResidents(share:WorkflowShare){const ids=share.resident_ids||[];const map=await residentMap(ids);return ids.map(id=>map.get(String(id))).filter(Boolean) as Resident[]}
-export async function getSharedAssignmentProgress(share:WorkflowShare):Promise<SharedAssignmentRecord[]>{
- if(share.workflow!=='assignments')return [];
- const marker=`Submitted from share ${share.token}`;
- const {data,error}=await supabase.from('assignments').select('resident_id,assignee_name,assigned_at,status').eq('notes',marker).order('assigned_at',{ascending:true});
- if(error)throw new Error(`Assignment progress load failed: ${error.message}`);
- return (data||[]) as SharedAssignmentRecord[];
-}
-export async function submitSharedAssignments(share:WorkflowShare,assigneeName:string,residentIds:(number|string)[]){
- const name=assigneeName.trim();
- if(share.workflow!=='assignments'||!share.can_update)throw new Error('This link does not allow assignment submissions.');
- if(!name)throw new Error('Enter your name.');
- const allowed=new Set((share.resident_ids||[]).map(String));
- const requested=[...new Set(residentIds.map(String))].filter(id=>allowed.has(id));
- if(!requested.length)throw new Error('Select at least one resident.');
- const existing=await getSharedAssignmentProgress(share);
- const sameAssignee=new Set(existing.filter(row=>row.assignee_name.trim().toLowerCase()===name.toLowerCase()).map(row=>String(row.resident_id)));
- const selected=requested.filter(id=>!sameAssignee.has(id));
- if(!selected.length)throw new Error('You already selected these residents earlier. Choose different residents or use another assignee name.');
- const now=new Date().toISOString(),marker=`Submitted from share ${share.token}`;
- const payload=selected.map((residentId,index)=>({id:Date.now()+index,resident_id:Number(residentId),assignee_name:name,assignment_type:'shared-link',status:'active',notes:marker,assigned_at:now}));
- const {error}=await supabase.from('assignments').insert(payload);
- if(error){if(error.code==='23505')throw new Error('One or more selected residents were already submitted by this same assignee. Refresh and select different residents.');throw new Error(`Assignment submission failed: ${error.message}`)}
- return payload.length;
-}
+export async function getSharedAssignmentProgress(share:WorkflowShare):Promise<SharedAssignmentRecord[]>{if(share.workflow!=='assignments')return [];const marker=`Submitted from share ${share.token}`;const {data,error}=await supabase.from('assignments').select('resident_id,assignee_name,assigned_at,status').eq('notes',marker).order('assigned_at',{ascending:true});if(error)throw new Error(`Assignment progress load failed: ${error.message}`);return (data||[]) as SharedAssignmentRecord[]}
+export async function submitSharedAssignments(share:WorkflowShare,assigneeName:string,residentIds:(number|string)[]){const name=assigneeName.trim();if(share.workflow!=='assignments'||!share.can_update)throw new Error('This link does not allow assignment submissions.');if(!name)throw new Error('Enter your name.');const allowed=new Set((share.resident_ids||[]).map(String));const requested=[...new Set(residentIds.map(String))].filter(id=>allowed.has(id));if(!requested.length)throw new Error('Select at least one resident.');const existing=await getSharedAssignmentProgress(share);const sameAssignee=new Set(existing.filter(row=>row.assignee_name.trim().toLowerCase()===name.toLowerCase()).map(row=>String(row.resident_id)));const selected=requested.filter(id=>!sameAssignee.has(id));if(!selected.length)throw new Error('You already selected these residents earlier. Choose different residents or use another assignee name.');const now=new Date().toISOString(),marker=`Submitted from share ${share.token}`;const payload=selected.map((residentId,index)=>({id:Date.now()+index,resident_id:Number(residentId),assignee_name:name,assignment_type:'shared-link',status:'active',notes:marker,assigned_at:now}));const {error}=await supabase.from('assignments').insert(payload);if(error){if(error.code==='23505')throw new Error('One or more selected residents were already submitted by this same assignee. Refresh and select different residents.');throw new Error(`Assignment submission failed: ${error.message}`)}return payload.length}
