@@ -1,15 +1,17 @@
 import type {ReactNode} from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import CampaignShowcase from '../shared/CampaignShowcase';
 
 export default function AppLayout({children}:{children:ReactNode}){
-  return <div className="min-h-screen bg-calm-50 lg:flex">
-    <Sidebar/>
-    <div className="min-w-0 flex-1">
-      <Header/>
-      <main className="mx-auto w-full max-w-[1600px] p-3 sm:p-5 lg:p-7 xl:p-8">
-        {children}
-      </main>
-    </div>
-  </div>;
+ return <div className="min-h-screen bg-calm-50 lg:flex">
+  <Sidebar/>
+  <div className="min-w-0 flex-1">
+   <Header/>
+   <main className="mx-auto w-full max-w-[1600px] p-3 sm:p-5 lg:p-7 xl:p-8">
+    <CampaignShowcase/>
+    <div className="mt-4 sm:mt-5">{children}</div>
+   </main>
+  </div>
+ </div>;
 }
