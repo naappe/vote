@@ -5,7 +5,7 @@ import {usePathname} from 'next/navigation';
 const groups=[
  {label:'Core',items:[
   {label:'Dashboard',href:'/',icon:'D'},
-  {label:'Residents',href:'/voter-management/',icon:'R'},
+  {label:'Residents',href:'/residents/',icon:'R'},
  ]},
  {label:'Field Operations',items:[
   {label:'Call Center',href:'/call-center/',icon:'C'},
@@ -18,7 +18,7 @@ const groups=[
   {label:'Transportation',href:'/transportation/',icon:'T'},
  ]},
  {label:'Control',items:[
-  {label:'Contact Verification',href:'/admin-verification/',icon:'Q'},
+  {label:'Contact Verification',href:'/contact-verification/',icon:'Q'},
   {label:'Reports',href:'/reports/',icon:'P'},
  ]},
 ];
