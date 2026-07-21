@@ -33,8 +33,7 @@ export async function getResidents():Promise<Resident[]>{
 }
 
 export async function getHouseOptions():Promise<HouseOption[]>{
-  const counts=new Map<string,number>();
-  const pageSize=1000;
+  const counts=new Map<string,number>();const pageSize=1000;
   for(let from=0;;from+=pageSize){
     const {data,error}=await supabase.from('campaign').select('house').order('house',{ascending:true}).range(from,from+pageSize-1);
     if(error)throw new Error(`House list failed: ${error.message}`);
@@ -49,7 +48,11 @@ export async function getResidentsPage({page=1,pageSize=25,search='',filter='all
   let query=supabase.from('campaign').select('*',{count:'exact'});
   const term=search.trim().replace(/[,%()]/g,' ');
   if(term)query=query.or(`name.ilike.%${term}%,national_id.ilike.%${term}%,house.ilike.%${term}%,lives_in.ilike.%${term}%,phone.ilike.%${term}%`);
-  if(house&&house!=='all')query=query.eq('house',house);
+  if(house&&house!=='all'){
+    if(house==='Dhafthar')query=query.or('house.ilike.%Dhafthar%,house.ilike.%No RS%,house.ilike.%No Dh R%');
+    else if(house==='Sina Malé')query=query.or('house.ilike.%Sina Male%,house.ilike.%Sina Malé%');
+    else query=query.eq('house',house);
+  }
   if(filter!=='all'){
     if(['will-vote','not-decided','not-vote'].includes(filter))query=query.eq('vote_status',filter);
     else if(['need-call','called'].includes(filter))query=query.eq('phone_status',filter);
