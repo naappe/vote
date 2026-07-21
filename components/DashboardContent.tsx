@@ -8,8 +8,22 @@ import PhoneStatusChart from './PhoneStatusChart';
 import ReachProgressBar from './ReachProgressBar';
 
 const empty:DashboardStats={total:0,willVote:0,undecided:0,notVote:0,needCall:0,called:0,reached:0,notReached:0,visited:0,unvisited:0};
-type SectionCard={title:string;href:string;accent:string;values:{label:string;value:number}[]};
+type SectionCard={
+ title:string;
+ href:string;
+ accent:string;
+ cta:string;
+ emptyMessage:string;
+ progress?:number;
+ values:{label:string;value:number;percentage?:boolean}[];
+};
 type DashboardResident=Resident&{vote_assigned_by?:string|null;transport_status?:string|null;has_voted?:boolean|null};
+
+function progressTone(progress:number){
+ if(progress>=71)return {bar:'bg-emerald-500',text:'text-emerald-700',surface:'bg-emerald-50'};
+ if(progress>=31)return {bar:'bg-amber-500',text:'text-amber-700',surface:'bg-amber-50'};
+ return {bar:'bg-rose-500',text:'text-rose-700',surface:'bg-rose-50'};
+}
 
 export default function DashboardContent(){
  const [residents,setResidents]=useState<Resident[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState('');
@@ -22,23 +36,32 @@ export default function DashboardContent(){
   const voted=rows.filter(r=>Boolean(r.has_voted)).length;
   const withRemarks=rows.filter(r=>Boolean(r.remarks&&r.remarks.trim())).length;
   const missingPhone=rows.filter(r=>!r.phone||!r.phone.trim()).length;
+  const pct=(value:number)=>stats.total?Math.round(value/stats.total*100):0;
   return [
-   {title:'Residents',href:'/residents/',accent:'bg-sky-500',values:[{label:'Total',value:stats.total},{label:'Reached',value:stats.reached},{label:'Pending',value:stats.notReached}]},
-   {title:'Call Center',href:'/call-center/',accent:'bg-cyan-500',values:[{label:'Need call',value:stats.needCall},{label:'Called',value:stats.called},{label:'Coverage',value:stats.total?Math.round(stats.called/stats.total*100):0}]},
-   {title:'Door-to-Door',href:'/door-to-door/',accent:'bg-emerald-500',values:[{label:'Pending',value:stats.unvisited},{label:'Completed',value:stats.visited},{label:'Coverage',value:stats.total?Math.round(stats.visited/stats.total*100):0}]},
-   {title:'Assignments',href:'/assignments/',accent:'bg-violet-500',values:[{label:'Assigned',value:assigned},{label:'Unassigned',value:Math.max(0,stats.total-assigned)},{label:'Coverage',value:stats.total?Math.round(assigned/stats.total*100):0}]},
-   {title:'Transportation',href:'/transportation/',accent:'bg-amber-500',values:[{label:'Need transport',value:transport},{label:'Not needed',value:Math.max(0,stats.total-transport)},{label:'Open',value:transport}]},
-   {title:'Election Day',href:'/election-day/',accent:'bg-rose-500',values:[{label:'Voted',value:voted},{label:'Remaining',value:Math.max(0,stats.total-voted)},{label:'Turnout',value:stats.total?Math.round(voted/stats.total*100):0}]},
-   {title:'Contact Verification',href:'/contact-verification/',accent:'bg-orange-500',values:[{label:'Missing phone',value:missingPhone},{label:'With phone',value:Math.max(0,stats.total-missingPhone)},{label:'Review',value:missingPhone}]},
-   {title:'Remarks',href:'/remarks/',accent:'bg-fuchsia-500',values:[{label:'With remarks',value:withRemarks},{label:'No remarks',value:Math.max(0,stats.total-withRemarks)},{label:'Records',value:withRemarks}]},
-   {title:'Reports',href:'/reports/',accent:'bg-indigo-500',values:[{label:'Will vote',value:stats.willVote},{label:'Not decided',value:stats.undecided},{label:'Not vote',value:stats.notVote}]}
+   {title:'Residents',href:'/residents/',accent:'bg-sky-500',cta:'Browse residents',emptyMessage:'No residents loaded yet',progress:pct(stats.reached),values:[{label:'Total',value:stats.total},{label:'Reached',value:stats.reached},{label:'Pending',value:stats.notReached}]},
+   {title:'Call Center',href:'/call-center/',accent:'bg-cyan-500',cta:stats.called?'Continue calling':'Get started',emptyMessage:'No calls completed yet',progress:pct(stats.called),values:[{label:'Need call',value:stats.needCall},{label:'Called',value:stats.called},{label:'Coverage',value:pct(stats.called),percentage:true}]},
+   {title:'Door-to-Door',href:'/door-to-door/',accent:'bg-emerald-500',cta:stats.visited?'Continue visits':'Get started',emptyMessage:'No visits completed yet',progress:pct(stats.visited),values:[{label:'Pending',value:stats.unvisited},{label:'Completed',value:stats.visited},{label:'Coverage',value:pct(stats.visited),percentage:true}]},
+   {title:'Assignments',href:'/assignments/',accent:'bg-violet-500',cta:assigned?'View assignments':'Create assignment',emptyMessage:'No assignments created yet',progress:pct(assigned),values:[{label:'Assigned',value:assigned},{label:'Unassigned',value:Math.max(0,stats.total-assigned)},{label:'Coverage',value:pct(assigned),percentage:true}]},
+   {title:'Transportation',href:'/transportation/',accent:'bg-amber-500',cta:transport?'Open transport queue':'Review transport',emptyMessage:'No transport requests',values:[{label:'Need transport',value:transport},{label:'Not needed',value:Math.max(0,stats.total-transport)},{label:'Open',value:transport}]},
+   {title:'Election Day',href:'/election-day/',accent:'bg-rose-500',cta:voted?'Open turnout queue':'Get started',emptyMessage:'No votes recorded yet',progress:pct(voted),values:[{label:'Voted',value:voted},{label:'Remaining',value:Math.max(0,stats.total-voted)},{label:'Turnout',value:pct(voted),percentage:true}]},
+   {title:'Contact Verification',href:'/contact-verification/',accent:'bg-orange-500',cta:missingPhone?'Review contacts':'Open verification',emptyMessage:'No contact issues detected',values:[{label:'Missing phone',value:missingPhone},{label:'With phone',value:Math.max(0,stats.total-missingPhone)},{label:'Review',value:missingPhone}]},
+   {title:'Remarks',href:'/remarks/',accent:'bg-fuchsia-500',cta:withRemarks?'View timeline':'Add first remark',emptyMessage:'No remarks recorded yet',values:[{label:'With remarks',value:withRemarks},{label:'No remarks',value:Math.max(0,stats.total-withRemarks)},{label:'Records',value:withRemarks}]},
+   {title:'Reports',href:'/reports/',accent:'bg-indigo-500',cta:'Open reports',emptyMessage:'No campaign outcomes recorded yet',progress:pct(stats.willVote+stats.notVote),values:[{label:'Will vote',value:stats.willVote},{label:'Not decided',value:stats.undecided},{label:'Not vote',value:stats.notVote}]}
   ];
  },[residents,stats]);
  if(loading)return <div className="panel"><div className="h-24 animate-pulse rounded-card bg-primary-light"/></div>;
  if(error)return <div className="error-banner">{error}</div>;
  return <div className="space-y-5">
-  <section className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="eyebrow">Live campaign analysis</p><h1 className="mt-1">Operations dashboard</h1><p className="mt-1 text-sm text-body">Every section shows its current workload and opens directly to the relevant records.</p></div><div className="status-chip bg-emerald-50 text-emerald-700">{stats.total.toLocaleString()} residents loaded</div></section>
+  <section className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="eyebrow">Campaign overview</p><h1 className="mt-1">Operations Dashboard</h1><p className="mt-1 text-sm text-body">Monitor campaign workload, team progress and urgent actions.</p></div><div className="status-chip bg-emerald-50 text-emerald-700">{stats.total.toLocaleString()} residents loaded</div></section>
   <div className="grid gap-4 xl:grid-cols-3"><VoteStatusChart stats={stats}/><PhoneStatusChart stats={stats}/><ReachProgressBar stats={stats}/></div>
-  <section><div className="mb-3 flex items-center justify-between"><div><p className="eyebrow">Section results</p><h2 className="mt-1">Workload and progress</h2></div></div><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{sections.map(section=><Link prefetch href={section.href} key={section.title} className="group rounded-xl border border-border bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"><div className="flex items-center gap-3"><span className={`h-2.5 w-2.5 rounded-full ${section.accent}`}/><h3 className="font-semibold group-hover:text-primary">{section.title}</h3><span className="ml-auto text-sm text-body">Open →</span></div><div className="mt-4 grid grid-cols-3 gap-2">{section.values.map((item,index)=><div key={item.label} className="rounded-lg bg-slate-50 px-3 py-3"><strong className="block text-lg font-semibold text-navy">{index===2&&['Coverage','Turnout'].includes(item.label)?`${item.value}%`:item.value.toLocaleString()}</strong><span className="mt-1 block text-[11px] text-body">{item.label}</span></div>)}</div></Link>)}</div></section>
+  <section><div className="mb-3"><p className="eyebrow">Operational workload</p><h2 className="mt-1">Start work and track progress</h2></div><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{sections.map(section=>{
+   const tone=section.progress===undefined?null:progressTone(section.progress);
+   const isEmpty=section.values.every(item=>item.value===0);
+   return <Link prefetch href={section.href} key={section.title} aria-label={`${section.cta}: ${section.title}`} className="group flex min-h-[210px] flex-col rounded-xl border border-border bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+    <div className="flex items-center gap-3"><span className={`h-2.5 w-2.5 rounded-full ${section.accent}`}/><h3 className="font-semibold text-navy group-hover:text-primary">{section.title}</h3><span className="ml-auto text-lg text-slate-400 transition-transform group-hover:translate-x-1 group-hover:text-primary">→</span></div>
+    {isEmpty?<div className="mt-5 flex flex-1 flex-col justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-center"><strong className="text-sm font-semibold text-navy">{section.emptyMessage}</strong><span className="mt-1 text-xs text-body">Use this section to begin recording activity.</span></div>:<div className="mt-4 grid grid-cols-3 gap-2">{section.values.map(item=><div key={item.label} className="rounded-lg bg-slate-50 px-3 py-3"><strong className="block text-lg font-semibold text-navy">{item.percentage?`${item.value}%`:item.value.toLocaleString()}</strong><span className="mt-1 block text-[11px] text-body">{item.label}</span></div>)}</div>}
+    {tone&&section.progress!==undefined&&<div className="mt-4"><div className="mb-1.5 flex items-center justify-between text-xs"><span className="text-body">Progress</span><span className={`rounded-full px-2 py-0.5 font-semibold ${tone.surface} ${tone.text}`}>{section.progress}%</span></div><div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className={`h-full rounded-full transition-all ${tone.bar}`} style={{width:`${Math.min(100,Math.max(0,section.progress))}%`}}/></div></div>}
+    <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3"><span className="text-sm font-semibold text-primary">{section.cta}</span><span className="text-xs text-body">Open section</span></div>
+   </Link>})}</div></section>
  </div>;
 }
