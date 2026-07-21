@@ -4,55 +4,58 @@
 @tailwind utilities;
 
 :root{
-  --bg-start:#f0f5fa;
-  --bg-end:#e8f0f8;
-  --panel:#ffffff;
-  --panel-soft:#f8fbff;
-  --line:#e2e8f0;
-  --text:#051c33;
-  --muted:#4f5e71;
-  --primary:#0066ff;
-  --primary-dark:#0044cc;
-  --primary-soft:#ebf4ff;
-  --success:#00d084;
-  --danger:#dc2626;
-  --warning:#d97706;
-  --card-shadow:0 4px 24px rgba(5,28,51,.06);
-  --card-hover-shadow:0 8px 32px rgba(5,28,51,.10)
+  --primary:#0066FF;
+  --primary-hover:#0044CC;
+  --primary-light:#EBF4FF;
+  --navy:#051C33;
+  --body-text:#4F5E71;
+  --accent-green:#00D084;
+  --background:#F0F5FA;
+  --background-end:#E8F0F8;
+  --card:#FFFFFF;
+  --border:#E2E8F0;
+  --danger:#DC2626;
+  --warning:#D97706;
+  --radius-card:20px;
+  --radius-pill:999px;
+  --shadow-card:0 4px 24px rgba(5,28,51,.06);
+  --shadow-card-hover:0 8px 32px rgba(5,28,51,.10);
+}
+.dark{
+  --background:#071523;
+  --background-end:#0B1E30;
+  --card:#0E2438;
+  --border:#20384D;
+  --navy:#F7FAFC;
+  --body-text:#B8C5D2;
+  --primary-light:#102E55;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;background:var(--bg-end)}
-body{@apply min-h-screen antialiased font-sans; background:linear-gradient(135deg,var(--bg-start) 0%,var(--bg-end) 100%);color:var(--text);font-family:'Inter',sans-serif}
+html{scroll-behavior:smooth;background:var(--background)}
+body{@apply min-h-screen antialiased font-sans; background:linear-gradient(135deg,var(--background) 0%,var(--background-end) 100%);color:var(--body-text)}
+h1,h2,h3,h4,h5,h6{color:var(--navy);letter-spacing:-.025em}
+h1{font-size:clamp(1.75rem,3vw,2rem);font-weight:700;line-height:1.15}
+h2{font-size:clamp(1.375rem,2.4vw,1.5rem);font-weight:600;line-height:1.2}
+h3{font-size:clamp(1.125rem,2vw,1.25rem);font-weight:600;line-height:1.25}
 button,input,select,textarea{font:inherit}
-h1,h2,h3,h4,h5,h6{color:var(--text)}
-p{color:inherit}
-a{transition:color .2s ease,background-color .2s ease,box-shadow .2s ease,transform .2s ease}
-button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(0,102,255,.22);outline-offset:2px}
-::selection{background:rgba(0,102,255,.18)}
-::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:#edf3f9}::-webkit-scrollbar-thumb{background:#b7c7d9;border-radius:999px}::-webkit-scrollbar-thumb:hover{background:var(--primary)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--primary) 24%,transparent);outline-offset:2px}
+::selection{background:color-mix(in srgb,var(--primary) 20%,transparent)}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:var(--background-end)}::-webkit-scrollbar-thumb{background:#AAB8C6;border-radius:999px}::-webkit-scrollbar-thumb:hover{background:var(--primary)}
 
 @layer components{
-  .panel{@apply bg-white p-6 md:p-7; border:1px solid rgba(226,232,240,.75);border-radius:20px;box-shadow:var(--card-shadow)}
-  .soft-card{@apply bg-white p-5 transition duration-200; border:1px solid rgba(226,232,240,.7);border-radius:18px;box-shadow:var(--card-shadow)}
-  .soft-card:hover{transform:translateY(-2px);box-shadow:var(--card-hover-shadow)}
-  .section-title{@apply text-xl font-semibold tracking-tight; color:var(--text)}
-  .muted{@apply text-sm; color:var(--muted)}
-  .action{@apply inline-flex min-h-11 items-center justify-center px-5 py-2.5 text-sm font-semibold transition duration-200 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50; border-radius:999px}
-  .action:hover{transform:translateY(-1px)}
-  .btn-primary{@apply action text-white; background:var(--primary);box-shadow:0 6px 18px rgba(0,102,255,.20)}
-  .btn-primary:hover{background:var(--primary-dark)}
-  .btn-secondary{@apply action bg-white; color:var(--primary);border:1px solid var(--primary)}
-  .btn-secondary:hover{background:var(--primary-soft)}
-  .btn-ghost{@apply action bg-white; color:var(--muted);border:1px solid var(--line)}
-  .btn-ghost:hover{color:var(--primary);border-color:rgba(0,102,255,.35);background:var(--primary-soft)}
-  .field{@apply min-h-12 w-full bg-white px-5 text-sm shadow-sm transition placeholder:text-slate-400; color:var(--text);border:1px solid var(--line);border-radius:999px}
-  .field:hover{border-color:#c7d4e3}
-  .field:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(0,102,255,.10);outline:none}
-  textarea.field{border-radius:18px}
-  .status-chip{@apply inline-flex items-center px-3 py-1.5 text-[11px] font-medium ring-1 ring-inset; border-radius:999px}
-  .brand-link{@apply inline-flex items-center gap-1 text-sm font-semibold; color:var(--primary)}
-  .brand-link:hover{color:var(--primary-dark);text-decoration:underline}
+  .panel{@apply bg-card p-5 shadow-card; border-radius:var(--radius-card)}
+  .soft-card{@apply bg-card p-4 shadow-card transition duration-200 hover:-translate-y-0.5 hover:shadow-card-hover; border-radius:var(--radius-card)}
+  .section-title{@apply text-xl font-semibold tracking-tight text-navy}
+  .muted{@apply text-sm text-body}
+  .action{@apply inline-flex min-h-11 items-center justify-center px-5 py-2 text-sm font-semibold transition duration-200 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50; border-radius:var(--radius-pill)}
+  .btn-primary{@apply action bg-primary text-white shadow-[0_6px_18px_rgba(0,102,255,.18)] hover:bg-primary-hover}
+  .btn-secondary{@apply action border border-primary bg-white text-primary hover:bg-primary-light}
+  .btn-ghost{@apply action bg-transparent text-primary hover:bg-primary-light}
+  .field,.input-base{@apply min-h-11 w-full border border-border bg-white px-4 text-sm text-navy shadow-sm transition placeholder:text-slate-400 focus:border-primary; border-radius:var(--radius-pill)}
+  textarea.field,textarea.input-base{border-radius:16px}
+  .status-chip{@apply inline-flex items-center px-3 py-1 text-[11px] font-medium; border-radius:var(--radius-pill)}
+  .brand-card{@apply bg-card p-6 shadow-card transition hover:shadow-card-hover; border-radius:var(--radius-card)}
 }
 
-@media(max-width:767px){body{background:linear-gradient(180deg,var(--bg-start),var(--bg-end))}.panel{border-radius:18px;padding:1rem}.soft-card{border-radius:16px;padding:1rem}.field{min-height:46px}}
+@media(max-width:767px){.panel,.soft-card,.brand-card{padding:1rem;border-radius:16px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
