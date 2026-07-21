@@ -12,18 +12,22 @@ async function residentMap(ids:(number|string)[]){const map=new Map<string,Resid
 export async function getElectionBoard(){
  const residents:Resident[]=[];
  for(let from=0;;from+=1000){const {data,error}=await supabase.from('Resident').select('*').order('id').range(from,from+999);if(error)throw new Error(`Resident load failed: ${error.message}`);residents.push(...(data||[]).map(row=>({...row,phone:row.phone==null?null:String(row.phone)} as Resident)));if((data||[]).length<1000)break}
- const [electionResponse,transportResponse,callResponse]=await Promise.all([
+ const [electionResponse,transportResponse,callResponse,assignmentResponse]=await Promise.all([
   supabase.from('election_day').select('*'),
   supabase.from('transportation').select('resident_id,transport_status'),
-  supabase.from('call_center').select('resident_id,vote_status')
+  supabase.from('call_center').select('resident_id,vote_status'),
+  supabase.from('assignments').select('resident_id,assignee_name,status')
  ]);
  if(electionResponse.error)throw new Error(`Election Day load failed: ${electionResponse.error.message}`);
  if(transportResponse.error)throw new Error(`Transportation load failed: ${transportResponse.error.message}`);
  if(callResponse.error)throw new Error(`Vote intention load failed: ${callResponse.error.message}`);
+ if(assignmentResponse.error)throw new Error(`Assignment load failed: ${assignmentResponse.error.message}`);
  const elections=new Map((electionResponse.data||[]).map(row=>[String(row.resident_id),row as ElectionRecord]));
  const transport=new Map((transportResponse.data||[]).map(row=>[String(row.resident_id),String(row.transport_status||'not-needed')]));
  const intentions=new Map((callResponse.data||[]).map(row=>[String(row.resident_id),String(row.vote_status||'not-decided')]));
- return residents.map(resident=>{const saved=elections.get(String(resident.id));const merged={...resident,vote_status:(intentions.get(String(resident.id))||'not-decided') as Resident['vote_status']};return {resident:merged,election:{resident_id:resident.id,reach_status:saved?.reach_status||'not-reached',has_voted:Boolean(saved?.has_voted),transport_status:transport.get(String(resident.id))||saved?.transport_status||'not-needed',voted_at:saved?.voted_at,reached_at:saved?.reached_at,contact_note:saved?.contact_note,updated_at:saved?.updated_at}}})
+ const assignments=new Map<string,string[]>();
+ for(const row of assignmentResponse.data||[]){if(row.status==='inactive'||!row.assignee_name)continue;const key=String(row.resident_id),names=assignments.get(key)||[];if(!names.some(name=>name.toLowerCase()===String(row.assignee_name).toLowerCase()))names.push(String(row.assignee_name));assignments.set(key,names)}
+ return residents.map(resident=>{const saved=elections.get(String(resident.id));const merged={...resident,vote_status:(intentions.get(String(resident.id))||'not-decided') as Resident['vote_status']};return {resident:merged,assignees:assignments.get(String(resident.id))||[],election:{resident_id:resident.id,reach_status:saved?.reach_status||'not-reached',has_voted:Boolean(saved?.has_voted),transport_status:transport.get(String(resident.id))||saved?.transport_status||'not-needed',voted_at:saved?.voted_at,reached_at:saved?.reached_at,contact_note:saved?.contact_note,updated_at:saved?.updated_at}}})
 }
 
 export async function saveElectionStatus(residentId:number|string,changes:Partial<ElectionRecord>){const now=new Date().toISOString();const payload:any={resident_id:residentId,...changes,updated_at:now};if(changes.reach_status==='reached')payload.reached_at=now;if(changes.has_voted===true)payload.voted_at=now;if(changes.has_voted===false)payload.voted_at=null;const {error}=await supabase.from('election_day').upsert(payload,{onConflict:'resident_id'});if(error)throw new Error(`Election Day save failed: ${error.message}`)}
