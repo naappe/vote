@@ -13,9 +13,47 @@ export default function OperationsListContent({mode}:{mode:Mode}){
  const config={calls:{title:'Call Center',description:'Phone outreach queue.',filter:(r:Resident)=>!r.phone_status||r.phone_status==='need-call'},visits:{title:'Door-to-Door',description:'Field visit queue. Showing the first 60 matching residents for fast loading.',filter:(r:Resident)=>!r.d2d_status||r.d2d_status==='not-visited'},election:{title:'Election Day',description:'Turnout and readiness.',filter:(_:Resident)=>true},reports:{title:'Reports',description:'Cross-section totals.',filter:(_:Resident)=>true},notifications:{title:'Notifications',description:'Items needing attention.',filter:(r:Resident)=>r.vote_status==='not-decided'||r.phone_status==='need-call'},settings:{title:'Settings',description:'System configuration.',filter:(_:Resident)=>true}}[mode];
  const visible=useMemo(()=>rows.filter(r=>(mode==='visits'||matchesParty(r,party))&&config.filter(r)),[rows,party,config,mode]);
  if(mode==='settings')return <div className="panel"><h1>Settings</h1><p className="mt-2 text-sm text-body">Connected to public.Resident · {rows.length.toLocaleString()} residents.</p></div>;
- if(mode==='reports'){const will=visible.filter(r=>r.vote_status==='will-vote').length,called=visible.filter(r=>r.phone_status==='called').length,visited=visible.filter(r=>r.d2d_status&&r.d2d_status!=='not-visited').length;return <div className="space-y-4"><section className="page-hero"><p className="eyebrow">Analytics</p><h1 className="mt-2">Reports</h1><div className="mt-4"><PartyFilter value={party} onChange={setParty}/></div></section><div className="grid gap-4 md:grid-cols-3"><Card label="Will vote" value={will}/><Card label="Calls completed" value={called}/><Card label="Homes visited" value={visited}/></div></div>}
+ if(mode==='reports')return <ReportsView rows={visible} party={party} setParty={setParty} loading={loading} error={error}/>;
  return <div className="space-y-4"><section className="page-hero"><p className="eyebrow">Campaign operations</p><h1 className="mt-2">{config.title}</h1><p className="mt-2 text-sm text-body">{config.description}</p><div className="mt-4"><PartyFilter value={party} onChange={setParty}/></div></section>{error&&<div className="error-banner">{error}</div>}<section className="panel overflow-hidden p-0"><div className="border-b border-border px-5 py-4"><b className="text-navy">{count.toLocaleString()} matching residents</b></div><div className="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3">{loading?Array.from({length:6}).map((_,i)=><div key={i} className="h-48 animate-pulse rounded-xl bg-primary-light"/>):visible.map(r=><WorkCard key={String(r.id)} resident={r} mode={mode}/>)}</div></section></div>
 }
+
+function ReportsView({rows,party,setParty,loading,error}:{rows:Resident[];party:string;setParty:(value:string)=>void;loading:boolean;error:string}){
+ const total=rows.length;
+ const value=(test:(r:Resident)=>boolean)=>rows.filter(test).length;
+ const pct=(n:number)=>total?Math.round(n/total*100):0;
+ const will=value(r=>r.vote_status==='will-vote'),undecided=value(r=>!r.vote_status||r.vote_status==='not-decided'),notVote=value(r=>r.vote_status==='not-vote');
+ const called=value(r=>r.phone_status==='called'),needCall=Math.max(0,total-called),connected=value(r=>r.call_outcome==='connected');
+ const visited=value(r=>Boolean(r.d2d_status&&r.d2d_status!=='not-visited')),unvisited=Math.max(0,total-visited);
+ const reached=value(r=>r.reach_status==='reached'||r.phone_status==='called'||r.vote_status==='will-vote'||r.vote_status==='not-vote'||r.support_level==='guaranteed');
+ const assigned=value(r=>Boolean((r as Resident&{vote_assigned_by?:string|null}).vote_assigned_by));
+ const transport=value(r=>(r as Resident&{transport_status?:string|null}).transport_status==='need-transport');
+ const voted=value(r=>Boolean((r as Resident&{has_voted?:boolean|null}).has_voted));
+ const missingPhone=value(r=>!String(r.phone||'').trim());
+ const metrics=[
+  {label:'Total residents',value:total,detail:party==='all'?'All parties':party},
+  {label:'Will vote',value:will,detail:`${pct(will)}% of residents`},
+  {label:'Calls completed',value:called,detail:`${pct(called)}% coverage`},
+  {label:'Homes visited',value:visited,detail:`${pct(visited)}% coverage`},
+  {label:'Reached',value:reached,detail:`${pct(reached)}% contact rate`},
+  {label:'Election turnout',value:voted,detail:`${pct(voted)}% voted`},
+ ];
+ return <div className="space-y-4">
+  <section className="page-hero"><p className="eyebrow">Cross-section analytics</p><h1 className="mt-2">Reports</h1><p className="mt-2 text-sm text-body">Campaign performance, workload and readiness in one view.</p><div className="mt-4"><PartyFilter value={party} onChange={setParty}/></div></section>
+  {error&&<div className="error-banner">{error}</div>}
+  {loading?<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{Array.from({length:6}).map((_,i)=><div key={i} className="h-32 animate-pulse rounded-card bg-primary-light"/>)}</div>:<>
+   <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{metrics.map(item=><Metric key={item.label} {...item}/>)}</section>
+   <section className="grid gap-4 xl:grid-cols-2">
+    <Breakdown title="Vote intention" rows={[['Will vote',will,total,'success'],['Not decided',undecided,total,'warning'],['Will not vote',notVote,total,'danger']]}/>
+    <Breakdown title="Contact coverage" rows={[['Called',called,total,'info'],['Connected',connected,total,'success'],['Need call',needCall,total,'warning']]}/>
+    <Breakdown title="Door-to-door" rows={[['Visited',visited,total,'success'],['Not visited',unvisited,total,'warning']]}/>
+    <Breakdown title="Election readiness" rows={[['Voted',voted,total,'success'],['Remaining',Math.max(0,total-voted),total,'warning'],['Need transport',transport,total,'danger']]}/>
+   </section>
+   <section className="panel"><div className="section-heading"><div><p className="eyebrow">Operational workload</p><h2 className="mt-1">Items requiring attention</h2></div></div><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Attention label="Need call" value={needCall} href="/call-center/"/><Attention label="Not visited" value={unvisited} href="/door-to-door/"/><Attention label="Unassigned" value={Math.max(0,total-assigned)} href="/assignments/"/><Attention label="Missing phone" value={missingPhone} href="/contact-verification/"/></div></section>
+  </>}
+ </div>
+}
+function Metric({label,value,detail}:{label:string;value:number;detail:string}){return <div className="metric-card"><div><p className="eyebrow">{label}</p><strong className="mt-3 block text-4xl text-navy">{value.toLocaleString()}</strong></div><p className="mt-3 text-sm text-body">{detail}</p></div>}
+function Breakdown({title,rows}:{title:string;rows:[string,number,number,string][]}){return <section className="panel"><h2>{title}</h2><div className="mt-5 space-y-4">{rows.map(([label,value,total,tone])=>{const percent=total?Math.round(value/total*100):0;return <div key={label}><div className="mb-2 flex items-center justify-between gap-3 text-sm"><span className="font-medium text-navy">{label}</span><span className="text-body">{value.toLocaleString()} · {percent}%</span></div><div className="h-2.5 overflow-hidden rounded-full bg-slate-100"><div className={`h-full rounded-full ${tone==='success'?'bg-emerald-500':tone==='danger'?'bg-rose-500':tone==='info'?'bg-sky-500':'bg-amber-400'}`} style={{width:`${percent}%`}}/></div></div>})}</div></section>}
+function Attention({label,value,href}:{label:string;value:number;href:string}){return <Link prefetch href={href} className="group rounded-xl border border-border bg-slate-50 p-4 transition hover:-translate-y-0.5 hover:border-primary hover:bg-primary-soft"><p className="text-sm font-medium text-body">{label}</p><strong className="mt-2 block text-2xl text-navy">{value.toLocaleString()}</strong><span className="mt-3 block text-sm font-semibold text-primary">Open records →</span></Link>}
 function WorkCard({resident:r,mode}:{resident:Resident;mode:Mode}){return <article className="soft-card"><ResidentIdentity resident={r}/><div className="mt-4 grid gap-2 text-sm"><Info label="Official house" value={r.house}/><Info label="Mobile" value={r.phone}/></div><div className="mt-4 flex flex-wrap gap-2"><StatusBadge status={mode==='calls'?r.phone_status:r.d2d_status}/><StatusBadge status={r.vote_status}/></div><div className="mt-4 grid gap-2 sm:grid-cols-2"><Link prefetch href={`/resident-profile/?id=${encodeURIComponent(String(r.id))}`} className="btn-primary w-full">Open resident</Link><Link prefetch href={`/remarks/?resident=${encodeURIComponent(String(r.id))}&section=${mode==='visits'?'door-to-door':'general'}`} className="btn-secondary w-full">Add remark</Link></div></article>}
 function Info({label,value}:{label:string,value?:string|null}){return <div className="flex justify-between gap-3"><span className="text-body">{label}</span><strong className="text-right text-navy">{value||'Not recorded'}</strong></div>}
-function Card({label,value}:{label:string,value:number}){return <div className="metric-card"><p className="eyebrow">{label}</p><strong className="mt-2 block text-4xl text-navy">{value.toLocaleString()}</strong></div>}
