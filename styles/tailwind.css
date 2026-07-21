@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Sans+3:wght@600;700&display=swap');
+@import './campaign-experience.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -31,8 +32,7 @@ button,input,select,textarea{font:inherit}button:focus-visible,a:focus-visible,i
  textarea.field,textarea.input-base{border-radius:8px}
  .field-label{@apply mb-1.5 block text-sm font-semibold;text-transform:none;color:var(--navy)}
  .status-chip{@apply inline-flex items-center px-2.5 py-1 text-[11px] font-semibold;border-radius:999px}
- .info-banner{@apply flex items-start gap-3 px-4 py-3 text-sm;background:#F1F5F8;border:1px solid #D7E0E8;border-radius:10px}
- .notice-card{@apply px-4 py-3;background:#FAF8F3;border:1px solid #E5DED0;border-left:3px solid #A07A3A;border-radius:8px}
+ .info-banner{@apply flex items-start gap-3 px-4 py-3 text-sm;background:#F1F5F8;border:1px solid #D7E0E8;border-radius:10px}.notice-card{@apply px-4 py-3;background:#FAF8F3;border:1px solid #E5DED0;border-left:3px solid #A07A3A;border-radius:8px}
  .error-banner{@apply p-4 text-sm font-semibold text-danger;background:#FFF5F5;border:1px solid #E9C7C7;border-radius:8px}
  .page-hero{@apply bg-card p-6;border:1px solid var(--border);border-radius:var(--radius-card);box-shadow:var(--shadow-card)}
  .empty-state{@apply bg-card py-14 text-center;border:1px dashed #BAC2CA;border-radius:10px}
