@@ -1,3 +1,3 @@
 import AppLayout from '../../layout/AppLayout';
-import OperationsListContent from '../../components/OperationsListContent';
-export default function Page(){return <AppLayout><OperationsListContent mode="calls"/></AppLayout>}
+import CallCenterContent from '../../components/CallCenterContent';
+export default function Page(){return <AppLayout><CallCenterContent/></AppLayout>}
