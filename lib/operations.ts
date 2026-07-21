@@ -39,14 +39,14 @@ export async function submitSharedAssignments(share:WorkflowShare,assigneeName:s
  if(!name)throw new Error('Enter your name.');
  const allowed=new Set((share.resident_ids||[]).map(String));
  const requested=[...new Set(residentIds.map(String))].filter(id=>allowed.has(id));
- if(!requested.length)throw new Error('Select at least one available resident.');
+ if(!requested.length)throw new Error('Select at least one resident.');
  const existing=await getSharedAssignmentProgress(share);
- const alreadyAssigned=new Set(existing.map(row=>String(row.resident_id)));
- const selected=requested.filter(id=>!alreadyAssigned.has(id));
- if(!selected.length)throw new Error('The selected residents have already been assigned from this link. Refresh the page to see current progress.');
+ const sameAssignee=new Set(existing.filter(row=>row.assignee_name.trim().toLowerCase()===name.toLowerCase()).map(row=>String(row.resident_id)));
+ const selected=requested.filter(id=>!sameAssignee.has(id));
+ if(!selected.length)throw new Error('You already selected these residents earlier. Choose different residents or use another assignee name.');
  const now=new Date().toISOString(),marker=`Submitted from share ${share.token}`;
  const payload=selected.map((residentId,index)=>({id:Date.now()+index,resident_id:Number(residentId),assignee_name:name,assignment_type:'shared-link',status:'active',notes:marker,assigned_at:now}));
  const {error}=await supabase.from('assignments').insert(payload);
- if(error)throw new Error(`Assignment submission failed: ${error.message}`);
+ if(error){if(error.code==='23505')throw new Error('One or more selected residents were already submitted by this same assignee. Refresh and select different residents.');throw new Error(`Assignment submission failed: ${error.message}`)}
  return payload.length;
 }
