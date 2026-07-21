@@ -3,7 +3,7 @@ export type PhoneStatus='need-call'|'called';
 export type ReachStatus='reached'|'not-reached';
 export type D2DStatus='reach'|'not-home'|'live-in-another-place'|'not-visited';
 export type SupportLevel='guaranteed'|'not-guaranteed';
-export type CallOutcome='connected'|'busy'|'not-answer'|'disconnected'|'out-of-coverage'|'wrong-number';
+export type CallOutcome='pending'|'connected'|'busy'|'not-answer'|'disconnected'|'out-of-coverage'|'wrong-number';
 
 /** Read-only identity record from public."Resident". */
 export interface Resident{
