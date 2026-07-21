@@ -20,14 +20,18 @@ button,input,select,textarea{font:inherit}button:focus-visible,a:focus-visible,i
  .metric-card{@apply bg-card p-4 shadow-card; border-radius:var(--radius-card)}
  .section-title{@apply text-xl font-semibold tracking-tight text-navy}.muted{@apply text-sm text-body}.eyebrow{@apply text-[11px] font-bold uppercase tracking-[.16em] text-primary}
  .action{@apply inline-flex min-h-11 items-center justify-center px-5 py-2 text-sm font-semibold transition duration-200 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50; border-radius:var(--radius-pill)}
- .btn-primary{@apply action bg-primary text-white shadow-card hover:bg-primary-hover}.btn-secondary{@apply action border border-primary bg-white text-primary hover:bg-primary-light}.btn-ghost{@apply action bg-transparent text-primary hover:bg-primary-light}
+ .btn-primary{@apply inline-flex min-h-11 items-center justify-center bg-primary px-5 py-2 text-sm font-semibold text-white shadow-card transition duration-200 hover:bg-primary-hover active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50; border-radius:var(--radius-pill)}
+ .btn-secondary{@apply inline-flex min-h-11 items-center justify-center border border-primary bg-white px-5 py-2 text-sm font-semibold text-primary transition duration-200 hover:bg-primary-light active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50; border-radius:var(--radius-pill)}
+ .btn-ghost{@apply inline-flex min-h-11 items-center justify-center bg-transparent px-5 py-2 text-sm font-semibold text-primary transition duration-200 hover:bg-primary-light active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50; border-radius:var(--radius-pill)}
  .field,.input-base{@apply min-h-11 w-full border border-border bg-white px-4 text-sm text-navy shadow-sm transition placeholder:text-slate-400 focus:border-primary; border-radius:var(--radius-pill)}textarea.field,textarea.input-base{border-radius:16px}
  .status-chip{@apply inline-flex items-center px-3 py-1 text-[11px] font-medium; border-radius:var(--radius-pill)}
  .info-banner{@apply flex items-start gap-3 bg-primary-light px-4 py-3 text-sm text-body; border-radius:var(--radius-card)}.info-icon{@apply grid h-7 w-7 shrink-0 place-items-center bg-white font-bold text-primary shadow-sm; border-radius:var(--radius-pill)}
  .notice-card{@apply bg-card px-4 py-3 shadow-card; border-left:4px solid var(--primary);border-radius:var(--radius-card)}
  .error-banner{@apply border border-red-200 bg-red-50 p-4 text-sm font-semibold text-danger; border-radius:var(--radius-card)}
  .tab-bar{@apply flex gap-2 overflow-x-auto bg-card p-1.5 shadow-card; border-radius:var(--radius-pill)}.tab-pill{@apply shrink-0 whitespace-nowrap px-4 py-2 text-sm font-semibold text-body transition hover:bg-primary-light hover:text-primary; border-radius:var(--radius-pill)}.tab-pill-active{@apply bg-primary text-white shadow-card hover:bg-primary hover:text-white}
- .page-hero{@apply brand-card}.filter-chip{@apply status-chip bg-primary-light text-primary}.empty-state{@apply panel py-14 text-center}
+ .page-hero{@apply bg-card p-6 shadow-card transition hover:shadow-card-hover; border-radius:var(--radius-card)}
+ .filter-chip{@apply inline-flex items-center bg-primary-light px-3 py-1 text-[11px] font-medium text-primary; border-radius:var(--radius-pill)}
+ .empty-state{@apply bg-card py-14 text-center shadow-card; border-radius:var(--radius-card)}
 }
-@media(max-width:767px){.panel,.soft-card,.brand-card{padding:1rem;border-radius:16px}.tab-bar{border-radius:16px}}
+@media(max-width:767px){.panel,.soft-card,.brand-card,.page-hero{padding:1rem;border-radius:16px}.tab-bar{border-radius:16px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
