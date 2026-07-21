@@ -8,19 +8,20 @@ import PhoneStatusChart from './PhoneStatusChart';
 import ReachProgressBar from './ReachProgressBar';
 
 const empty:DashboardStats={total:0,willVote:0,undecided:0,notVote:0,needCall:0,called:0,reached:0,notReached:0,visited:0,unvisited:0};
-
 type SectionCard={title:string;href:string;accent:string;values:{label:string;value:number}[]};
+type DashboardResident=Resident&{vote_assigned_by?:string|null;transport_status?:string|null;has_voted?:boolean|null};
 
 export default function DashboardContent(){
  const [residents,setResidents]=useState<Resident[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState('');
  useEffect(()=>{getResidents().then(setResidents).catch(e=>setError(e.message||'Unable to load campaign')).finally(()=>setLoading(false))},[]);
  const stats=useMemo(()=>residents.reduce((s,r)=>{s.total++;if(r.vote_status==='will-vote')s.willVote++;else if(r.vote_status==='not-vote')s.notVote++;else s.undecided++;if(r.phone_status==='called')s.called++;else s.needCall++;const reached=r.reach_status==='reached'||r.phone_status==='called'||r.vote_status==='will-vote'||r.vote_status==='not-vote'||r.support_level==='guaranteed';if(reached)s.reached++;else s.notReached++;if(r.d2d_status&&r.d2d_status!=='not-visited')s.visited++;else s.unvisited++;return s;},{...empty}),[residents]);
  const sections=useMemo<SectionCard[]>(()=>{
-  const assigned=residents.filter(r=>Boolean(r.vote_assigned_by)).length;
-  const transport=residents.filter(r=>r.transport_status==='need-transport').length;
-  const voted=residents.filter(r=>Boolean((r as Resident&{has_voted?:boolean}).has_voted)).length;
-  const withRemarks=residents.filter(r=>Boolean(r.remarks&&r.remarks.trim())).length;
-  const missingPhone=residents.filter(r=>!r.phone||!r.phone.trim()).length;
+  const rows=residents as DashboardResident[];
+  const assigned=rows.filter(r=>Boolean(r.vote_assigned_by)).length;
+  const transport=rows.filter(r=>r.transport_status==='need-transport').length;
+  const voted=rows.filter(r=>Boolean(r.has_voted)).length;
+  const withRemarks=rows.filter(r=>Boolean(r.remarks&&r.remarks.trim())).length;
+  const missingPhone=rows.filter(r=>!r.phone||!r.phone.trim()).length;
   return [
    {title:'Residents',href:'/residents/',accent:'bg-sky-500',values:[{label:'Total',value:stats.total},{label:'Reached',value:stats.reached},{label:'Pending',value:stats.notReached}]},
    {title:'Call Center',href:'/call-center/',accent:'bg-cyan-500',values:[{label:'Need call',value:stats.needCall},{label:'Called',value:stats.called},{label:'Coverage',value:stats.total?Math.round(stats.called/stats.total*100):0}]},
