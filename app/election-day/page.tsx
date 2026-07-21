@@ -1,3 +1,3 @@
 import AppLayout from '../../layout/AppLayout';
-import OperationsListContent from '../../components/OperationsListContent';
-export default function Page(){return <AppLayout><OperationsListContent mode="election"/></AppLayout>}
+import ElectionDayContent from '../../components/ElectionDayContent';
+export default function Page(){return <AppLayout><ElectionDayContent/></AppLayout>}
