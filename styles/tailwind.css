@@ -1,57 +1,57 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Sans+3:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Sans+3:wght@500;600&display=swap');
 @import './campaign-experience.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root{
- --primary:#1F4F78;--primary-hover:#173E60;--primary-light:#EAF1F7;
- --navy:#17212B;--body-text:#66717D;--accent-green:#16836F;
- --background:#F4F6F8;--background-end:#EEF1F4;--card:#FFFFFF;
- --border:#D9DEE4;--danger:#C23B3B;--warning:#A96716;
- --radius-card:14px;--radius-pill:8px;
- --card-padding:20px;
- --shadow-card:0 1px 2px rgba(16,24,40,.04),0 8px 22px rgba(16,24,40,.055);
- --shadow-card-hover:0 14px 34px rgba(16,24,40,.10)
+ --primary:#557C8D;--primary-hover:#466B7B;--primary-light:#EEF5F6;
+ --navy:#334750;--body-text:#6F7E84;--accent-green:#6E9B8F;
+ --background:#F7F8F7;--background-end:#F1F4F3;--card:#FFFFFF;
+ --border:#E2E8E6;--danger:#B85C5C;--warning:#A77A46;
+ --radius-card:12px;--radius-pill:7px;
+ --card-padding:17px;
+ --shadow-card:0 1px 2px rgba(38,54,60,.025),0 5px 16px rgba(38,54,60,.035);
+ --shadow-card-hover:0 8px 24px rgba(38,54,60,.065)
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;background:var(--background)}
 body{@apply min-h-screen antialiased; font-family:'Inter',sans-serif;color:var(--body-text);background:linear-gradient(180deg,var(--background),var(--background-end)) fixed}
-h1,h2,h3,h4,h5,h6{font-family:'Source Sans 3',sans-serif;color:var(--navy);letter-spacing:-.02em}h1{font-size:clamp(1.65rem,2.5vw,2.15rem);font-weight:700;line-height:1.15}h2{font-size:clamp(1.25rem,2vw,1.55rem);font-weight:700;line-height:1.2}h3{font-size:1.05rem;font-weight:700}
-button,input,select,textarea{font:inherit}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(31,79,120,.18);outline-offset:2px}
+h1,h2,h3,h4,h5,h6{font-family:'Source Sans 3',sans-serif;color:var(--navy);letter-spacing:-.012em}h1{font-size:clamp(1.45rem,2.2vw,1.9rem);font-weight:600;line-height:1.2}h2{font-size:clamp(1.12rem,1.7vw,1.38rem);font-weight:600;line-height:1.25}h3{font-size:1rem;font-weight:600}
+button,input,select,textarea{font:inherit}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid rgba(85,124,141,.18);outline-offset:2px}
 
 @layer components{
  .master-card,.panel,.soft-card,.brand-card,.metric-card,.page-hero{@apply bg-card transition duration-200; padding:var(--card-padding);border:1px solid var(--border);border-radius:var(--radius-card);box-shadow:var(--shadow-card)}
- .master-card:hover,.soft-card:hover,.metric-card:hover{border-color:#B9C4CF;box-shadow:var(--shadow-card-hover);transform:translateY(-1px)}
+ .master-card:hover,.soft-card:hover,.metric-card:hover{border-color:#D3DDDA;box-shadow:var(--shadow-card-hover);transform:translateY(-1px)}
  .master-card-static,.panel,.brand-card,.page-hero{transform:none!important}
- .metric-card{min-height:154px;display:flex;flex-direction:column;justify-content:space-between}
+ .metric-card{min-height:126px;display:flex;flex-direction:column;justify-content:space-between}
  .resident-card{min-height:100%;display:flex;flex-direction:column}
- .card-header{@apply mb-4 flex items-start justify-between gap-3 border-b border-border pb-4}
+ .card-header{@apply mb-3 flex items-start justify-between gap-3 border-b border-border pb-3}
  .card-body{@apply min-w-0 flex-1}
- .card-footer{@apply mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-4}
- .card-grid{@apply grid gap-4 sm:grid-cols-2 xl:grid-cols-3}
- .stats-grid{@apply grid gap-4 sm:grid-cols-2 xl:grid-cols-4}
- .eyebrow{@apply text-[10px] font-bold uppercase tracking-[.16em];color:#6D7782}
- .btn-primary{@apply inline-flex min-h-10 items-center justify-center px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-50;background:var(--primary);border-radius:8px}.btn-primary:hover{background:var(--primary-hover)}
- .btn-secondary{@apply inline-flex min-h-10 items-center justify-center px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;color:var(--navy);background:#fff;border:1px solid var(--border);border-radius:8px}.btn-secondary:hover{background:#F7F9FB;border-color:#B9C4CF}
- .btn-ghost{@apply inline-flex min-h-10 items-center justify-center px-4 py-2 text-sm font-semibold transition;color:var(--navy);border-radius:8px}.btn-ghost:hover{background:#EEF2F5}
- .field,.input-base{@apply min-h-10 w-full px-3.5 text-sm text-navy transition placeholder:text-slate-400;background:#fff;border:1px solid #C9D0D7;border-radius:8px}.field:focus,.input-base:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(31,79,120,.10)}
- textarea.field,textarea.input-base{border-radius:8px}
- .field-label{@apply mb-1.5 block text-sm font-semibold;text-transform:none;color:var(--navy)}
- .status-chip{@apply inline-flex items-center px-2.5 py-1 text-[11px] font-semibold;border-radius:999px}
- .info-banner{@apply flex items-start gap-3 px-4 py-3 text-sm;background:#F1F5F8;border:1px solid #D7E0E8;border-radius:10px}.notice-card{@apply px-4 py-3;background:#FAF8F3;border:1px solid #E5DED0;border-left:3px solid #A07A3A;border-radius:8px}
- .error-banner{@apply p-4 text-sm font-semibold text-danger;background:#FFF5F5;border:1px solid #E9C7C7;border-radius:8px}
- .empty-state{@apply bg-card py-14 text-center;border:1px dashed #BAC2CA;border-radius:var(--radius-card)}
- .brand-mark{@apply grid h-10 w-10 place-items-center text-xs font-bold text-white;background:var(--primary);border-radius:8px}
- .nav-group-label{@apply px-3 text-[10px] font-bold uppercase tracking-[.14em];color:#8A939D}
- .nav-item{@apply flex min-h-10 items-center gap-3 px-3 text-sm font-medium transition;color:#596470;border-radius:8px}.nav-item:hover{background:#F1F4F7;color:var(--navy)}
- .nav-item-active{background:var(--primary-light)!important;color:var(--primary)!important;font-weight:700}
- .nav-icon{@apply grid h-7 w-7 place-items-center text-[11px] font-bold;border:1px solid #D8DEE5;border-radius:7px;background:#fff}
+ .card-footer{@apply mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3}
+ .card-grid{@apply grid gap-3 sm:grid-cols-2 xl:grid-cols-3}
+ .stats-grid{@apply grid gap-3 sm:grid-cols-2 xl:grid-cols-4}
+ .eyebrow{@apply text-[9px] font-semibold uppercase tracking-[.14em];color:#879397}
+ .btn-primary{@apply inline-flex min-h-9 items-center justify-center px-3.5 py-2 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-50;background:var(--primary);border-radius:7px}.btn-primary:hover{background:var(--primary-hover)}
+ .btn-secondary{@apply inline-flex min-h-9 items-center justify-center px-3.5 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50;color:var(--navy);background:#fff;border:1px solid var(--border);border-radius:7px}.btn-secondary:hover{background:#F7F9F8;border-color:#D3DDDA}
+ .btn-ghost{@apply inline-flex min-h-9 items-center justify-center px-3.5 py-2 text-sm font-medium transition;color:var(--navy);border-radius:7px}.btn-ghost:hover{background:#F0F4F3}
+ .field,.input-base{@apply min-h-9 w-full px-3 text-sm text-navy transition placeholder:text-slate-400;background:#fff;border:1px solid #D7DFDD;border-radius:7px}.field:focus,.input-base:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(85,124,141,.09)}
+ textarea.field,textarea.input-base{border-radius:7px}
+ .field-label{@apply mb-1.5 block text-sm font-medium;text-transform:none;color:var(--navy)}
+ .status-chip{@apply inline-flex items-center px-2.5 py-1 text-[11px] font-medium;border-radius:999px}
+ .info-banner{@apply flex items-start gap-3 px-4 py-3 text-sm;background:#F3F7F6;border:1px solid #DDE8E5;border-radius:9px}.notice-card{@apply px-4 py-3;background:#FBF9F5;border:1px solid #E9E1D5;border-left:2px solid #B08A56;border-radius:8px}
+ .error-banner{@apply p-4 text-sm font-medium text-danger;background:#FFF7F7;border:1px solid #EBCFCF;border-radius:8px}
+ .empty-state{@apply bg-card py-10 text-center;border:1px dashed #CBD5D2;border-radius:var(--radius-card)}
+ .brand-mark{@apply grid h-8 w-8 place-items-center text-[10px] font-semibold text-white;background:var(--primary);border-radius:7px}
+ .nav-group-label{@apply px-3 text-[9px] font-semibold uppercase tracking-[.13em];color:#9AA4A7}
+ .nav-item{@apply flex min-h-9 items-center gap-2.5 px-3 text-sm font-normal transition;color:#69777C;border-radius:7px}.nav-item:hover{background:#F2F5F4;color:var(--navy)}
+ .nav-item-active{background:var(--primary-light)!important;color:var(--primary)!important;font-weight:600}
+ .nav-icon{@apply grid h-6 w-6 place-items-center text-[10px] font-medium;border:1px solid #E0E6E4;border-radius:6px;background:#fff}
  .profile-header{@apply flex flex-col justify-between gap-4 sm:flex-row sm:items-center}
- .section-heading{@apply mb-5 flex items-start justify-between gap-3 border-b border-border pb-4}
- .read-only-label{@apply inline-flex items-center px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.1em];color:#5E6873;background:#F1F3F5;border:1px solid #D9DEE4;border-radius:999px}
+ .section-heading{@apply mb-4 flex items-start justify-between gap-3 border-b border-border pb-3}
+ .read-only-label{@apply inline-flex items-center px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[.09em];color:#758186;background:#F4F6F5;border:1px solid #E1E6E4;border-radius:999px}
  .record-grid{@apply grid gap-0 sm:grid-cols-2}
- .record-row{@apply grid grid-cols-[130px_1fr] gap-4 border-b border-border py-3 text-sm}.record-row dt{color:#7A8490}.record-row dd{font-weight:600;color:var(--navy);word-break:break-word}
+ .record-row{@apply grid grid-cols-[130px_1fr] gap-4 border-b border-border py-2.5 text-sm}.record-row dt{color:#879296}.record-row dd{font-weight:500;color:var(--navy);word-break:break-word}
 }
-@media(max-width:767px){:root{--card-padding:16px}.record-row{grid-template-columns:1fr;gap:.25rem}.metric-card{min-height:136px}}
+@media(max-width:767px){:root{--card-padding:14px}.record-row{grid-template-columns:1fr;gap:.25rem}.metric-card{min-height:112px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
