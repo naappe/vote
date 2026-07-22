@@ -27,9 +27,11 @@ const groups=[
   {label:'Dashboard',href:'/',icon:'dashboard'},
   {label:'Residents',href:'/residents/',icon:'residents'},
  ]},
- {label:'Field Operations',items:[
+ {label:'Outreach',items:[
   {label:'Call Center',href:'/call-center/',icon:'calls'},
   {label:'Door-to-Door',href:'/door-to-door/',icon:'visits'},
+ ]},
+ {label:'Planning & Follow-up',items:[
   {label:'Assignments',href:'/assignments/',icon:'assignments'},
   {label:'Remarks',href:'/remarks/',icon:'remarks'},
  ]},
