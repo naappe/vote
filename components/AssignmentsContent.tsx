@@ -9,7 +9,7 @@ type Assignment={id:number|string;resident_id:number|string;assignee_name:string
 type ShareLink={id:number|string;token:string;title?:string|null;status_filter?:string|null;resident_ids?:number[]|null;active:boolean;created_at?:string|null};
 
 export default function AssignmentsContent(){
- const [residents,setResidents]=useState<Resident[]>([]),[items,setItems]=useState<Assignment[]>([]),[links,setLinks]=useState<ShareLink[]>([]),[query,setQuery]=useState(''),[party,setParty]=useState('all'),[house,setHouse]=useState('all'),[box,setBox]=useState('all'),[linkAssignee,setLinkAssignee]=useState(''),[historyAssignee,setHistoryAssignee]=useState(''),[historySearch,setHistorySearch]=useState(''),[editingId,setEditingId]=useState<string|null>(null),[editingName,setEditingName]=useState(''),[editingLinkId,setEditingLinkId]=useState<string|null>(null),[editingLinkName,setEditingLinkName]=useState(''),[error,setError]=useState(''),[message,setMessage]=useState(''),[creating,setCreating]=useState(false),[showAllResidents,setShowAllResidents]=useState(false);
+ const [residents,setResidents]=useState<Resident[]>([]),[items,setItems]=useState<Assignment[]>([]),[links,setLinks]=useState<ShareLink[]>([]),[query,setQuery]=useState(''),[party,setParty]=useState('all'),[house,setHouse]=useState('all'),[box,setBox]=useState('all'),[linkAssignee,setLinkAssignee]=useState(''),[historyAssignee,setHistoryAssignee]=useState(''),[historySearch,setHistorySearch]=useState(''),[editingId,setEditingId]=useState<string|null>(null),[editingName,setEditingName]=useState(''),[editingLinkId,setEditingLinkId]=useState<string|null>(null),[editingLinkName,setEditingLinkName]=useState(''),[error,setError]=useState(''),[message,setMessage]=useState(''),[creating,setCreating]=useState(false),[residentPage,setResidentPage]=useState(1);
 
  async function load(){try{setError('');const [residentRows,assignmentResponse,shareResponse]=await Promise.all([getResidents(),supabase.from('assignments').select('*').order('assigned_at',{ascending:false}).limit(2000),supabase.from('workflow_shares').select('*').eq('workflow','assignments').order('created_at',{ascending:false}).limit(300)]);if(assignmentResponse.error)throw assignmentResponse.error;if(shareResponse.error)throw shareResponse.error;setResidents(residentRows);setItems((assignmentResponse.data||[]) as Assignment[]);setLinks((shareResponse.data||[]) as ShareLink[])}catch(e){setError(e instanceof Error?e.message:'Unable to load assignments')}}
  useEffect(()=>{load()},[]);
@@ -17,12 +17,13 @@ export default function AssignmentsContent(){
  const houses=useMemo(()=>[...new Set(residents.map(r=>(r.house||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b)),[residents]);
  const boxes=useMemo(()=>[...new Set(residents.map(r=>(r.election_box||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true})),[residents]);
  const filteredResidents=useMemo(()=>residents.filter(r=>{const text=[r.name,r.national_id,r.phone,r.house,r.lives_in,r.election_box].join(' ').toLowerCase();return matchesParty(r,party)&&(house==='all'||r.house===house)&&(box==='all'||r.election_box===box)&&text.includes(query.toLowerCase())}),[residents,party,house,box,query]);
- const visibleResidents=filteredResidents.slice(0,showAllResidents?120:12);
+ const pageSize=20,totalPages=Math.max(1,Math.ceil(filteredResidents.length/pageSize));
+ const visibleResidents=filteredResidents.slice((residentPage-1)*pageSize,residentPage*pageSize);
  const residentMap=useMemo(()=>new Map(residents.map(r=>[String(r.id),r])),[residents]);
  const assignees=useMemo(()=>[...new Set(items.map(item=>item.assignee_name).filter(Boolean))].sort((a,b)=>a.localeCompare(b)),[items]);
  const currentLinks=useMemo(()=>{const latest=new Map<string,ShareLink>();for(const link of links){const key=(link.status_filter||'Unnamed assignee').trim().toLowerCase();if(!latest.has(key))latest.set(key,link)}return [...latest.values()]},[links]);
  useEffect(()=>{if(!historyAssignee&&assignees.length)setHistoryAssignee(assignees[0])},[assignees,historyAssignee]);
- useEffect(()=>{setShowAllResidents(false)},[query,party,house,box]);
+ useEffect(()=>{setResidentPage(1)},[query,party,house,box]);
  const selectedItems=useMemo(()=>items.filter(item=>{if(item.assignee_name!==historyAssignee)return false;const resident=residentMap.get(String(item.resident_id));const text=[resident?.name,resident?.national_id,resident?.phone,resident?.house,resident?.lives_in,item.assignee_name].join(' ').toLowerCase();return text.includes(historySearch.toLowerCase())}),[items,residentMap,historyAssignee,historySearch]);
  const shareUrl=(link:ShareLink)=>`${window.location.origin}/Vote/share/?token=${link.token}`;
 
@@ -49,7 +50,7 @@ export default function AssignmentsContent(){
   </section>
 
   <section className="panel overflow-hidden p-0">
-   <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-4 sm:px-5"><div><p className="eyebrow">Filtered residents</p><h2 className="mt-1">Residents in this link</h2><p className="mt-1 text-sm text-body">Showing {visibleResidents.length.toLocaleString()} of {filteredResidents.length.toLocaleString()}</p></div>{filteredResidents.length>12&&<button className="btn-secondary shrink-0" onClick={()=>setShowAllResidents(value=>!value)}>{showAllResidents?'Show 12':'Show more'}</button>}</div>
+   <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-4 sm:px-5"><div><p className="eyebrow">Filtered residents</p><h2 className="mt-1">Residents in this link</h2><p className="mt-1 text-sm text-body">Showing {filteredResidents.length?((residentPage-1)*pageSize+1):0}–{Math.min(residentPage*pageSize,filteredResidents.length)} of {filteredResidents.length.toLocaleString()}</p></div><span className="text-sm text-body">Page {residentPage} of {totalPages}</span></div>
    <div className="max-h-[680px] overflow-y-auto p-4"><div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{visibleResidents.map(r=><article key={String(r.id)} className="soft-card self-start p-4"><ResidentIdentity resident={r}/><dl className="mt-4 grid grid-cols-2 gap-2 text-sm"><Info label="Resident ID" value={String(r.id)}/><Info label="Mobile" value={r.phone}/><Info label="Official address" value={r.house}/><Info label="Living place" value={r.lives_in}/><Info label="Election box" value={r.election_box}/></dl></article>)}</div>{!filteredResidents.length&&<div className="empty-state m-4">No residents match the current filters.</div>}</div>
   </section>
 
