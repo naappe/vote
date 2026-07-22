@@ -18,7 +18,7 @@ async function loadDashboardSnapshot():Promise<DashboardSnapshot>{
   supabase.from('Resident').select('id',{count:'exact',head:true}),
   supabase.from('Resident').select('phone'),
   supabase.from('call_center').select('resident_id,phone_status,reach_status,vote_status,support_level'),
-  supabase.from('door_to_door').select('resident_id,d2d_status'),
+  supabase.from('door_to_door').select('resident_id'),
   supabase.from('assignments').select('resident_id,status'),
   supabase.from('transportation').select('resident_id',{count:'exact',head:true}).eq('transport_status','need-transport'),
   supabase.from('election_day').select('resident_id',{count:'exact',head:true}).eq('has_voted',true),
@@ -39,7 +39,7 @@ async function loadDashboardSnapshot():Promise<DashboardSnapshot>{
   if(row.reach_status==='reached'||row.phone_status==='called'||row.vote_status==='will-vote'||row.vote_status==='not-vote'||row.support_level==='guaranteed')reached++;
  }
  const visitedResidents=new Set<string>();
- for(const row of visits.data||[])if(row.d2d_status&&row.d2d_status!=='not-visited')visitedResidents.add(String(row.resident_id));
+ for(const row of visits.data||[])visitedResidents.add(String(row.resident_id));
  const assignedResidents=new Set<string>();
  for(const row of assignments.data||[])if(row.status!=='inactive')assignedResidents.add(String(row.resident_id));
  const missingPhone=(phones.data||[]).filter(row=>!String(row.phone||'').trim()).length;
