@@ -27,14 +27,12 @@ const groups=[
   {label:'Dashboard',href:'/',icon:'dashboard'},
   {label:'Residents',href:'/residents/',icon:'residents'},
  ]},
- {label:'Work Planning',items:[
-  {label:'Assignments',href:'/assignments/',icon:'assignments'},
- ]},
  {label:'Outreach',items:[
   {label:'Call Center',href:'/call-center/',icon:'calls'},
   {label:'Door-to-Door',href:'/door-to-door/',icon:'visits'},
  ]},
  {label:'Follow-up',items:[
+  {label:'Assignments',href:'/assignments/',icon:'assignments'},
   {label:'Remarks',href:'/remarks/',icon:'remarks'},
  ]},
  {label:'Election Operations',items:[
