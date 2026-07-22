@@ -11,7 +11,7 @@ function NavGlyph({name}:{name:string}){
   residents:<><path d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20"/><circle cx="9.5" cy="7" r="3.2"/><path d="M17 11a3 3 0 0 0 0-6M21 20v-1.5a4 4 0 0 0-2.5-3.7"/></>,
   calls:<><path d="M6.6 3.8 4.8 5.6c-1.1 1.1 1.4 6.5 5.7 10.8s9.7 6.8 10.8 5.7l1.8-1.8-4.2-4.2-2.3 2.3a14.8 14.8 0 0 1-5-5l2.3-2.3z"/></>,
   visits:<><path d="m3 11 9-7 9 7"/><path d="M5.5 10.5V20h13v-9.5M9 20v-5h6v5"/></>,
-  assignments:<><><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5h6v3H9zM9 12h6M9 16h4"/></>,
+  assignments:<><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5h6v3H9zM9 12h6M9 16h4"/></>,
   remarks:<><path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 8.4 8.4 0 0 1-3.2-.7L4 20l1.5-4.1A7.1 7.1 0 0 1 4 11.5 7.5 7.5 0 0 1 12 4a7.5 7.5 0 0 1 8 7.5Z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></>,
   election:<><path d="M4 6h16v14H4z"/><path d="M8 3h8v3H8zM8 11l2 2 4-4M8 17h8"/></>,
   transport:<><path d="M5 16 6.5 9h11L19 16"/><path d="M3 16h18v3H3z"/><circle cx="7" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></>,
