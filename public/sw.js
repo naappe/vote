@@ -1,4 +1,4 @@
-const CACHE_NAME='campaignops-shell-v1';
+const CACHE_NAME='campaignops-shell-v2';
 const APP_SHELL=['/Vote/','/Vote/manifest.webmanifest','/Vote/favicon.svg'];
 
 self.addEventListener('install',event=>{
@@ -15,7 +15,7 @@ self.addEventListener('fetch',event=>{
   const url=new URL(request.url);
   if(url.origin!==self.location.origin)return;
   if(url.pathname.startsWith('/Vote/_next/static/')||url.pathname==='/Vote/favicon.svg'||url.pathname==='/Vote/manifest.webmanifest'){
-    event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(request,copy));return response;})));
+    event.respondWith(fetch(request).then(response=>{const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(request,copy));return response;}).catch(()=>caches.match(request)));
     return;
   }
   if(request.mode==='navigate'){
