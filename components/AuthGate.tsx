@@ -4,13 +4,24 @@ import type {Session} from '@supabase/supabase-js';
 import {supabase} from '../lib/supabase';
 import AuthControl from './AuthControl';
 
+let cachedSession:Session|null|undefined;
+let sessionRequest:Promise<Session|null>|null=null;
+function readSession(){
+ if(cachedSession!==undefined)return Promise.resolve(cachedSession);
+ if(!sessionRequest)sessionRequest=supabase.auth.getSession().then(({data})=>{
+  cachedSession=data.session;sessionRequest=null;return cachedSession;
+ }).catch(()=>{sessionRequest=null;return null});
+ return sessionRequest;
+}
 export default function AuthGate({children}:{children:React.ReactNode}){
- const [session,setSession]=useState<Session|null>(null);
- const [ready,setReady]=useState(false);
+ const [session,setSession]=useState<Session|null>(()=>cachedSession??null);
+ const [ready,setReady]=useState(()=>cachedSession!==undefined);
  useEffect(()=>{
   let active=true;
-  supabase.auth.getSession().then(({data})=>{if(active){setSession(data.session);setReady(true)}});
-  const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,next)=>{setSession(next);setReady(true)});
+  readSession().then(next=>{if(active){setSession(next);setReady(true)}});
+  const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,next)=>{
+   cachedSession=next;setSession(next);setReady(true);
+  });
   return()=>{active=false;subscription.unsubscribe()};
  },[]);
  if(!ready)return <div className="grid min-h-screen place-items-center bg-calm-50 p-6"><div className="h-14 w-48 animate-pulse rounded-2xl bg-primary-light"/></div>;
