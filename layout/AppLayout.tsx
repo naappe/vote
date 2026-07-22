@@ -11,6 +11,7 @@ export default function AppLayout({children}:{children:ReactNode;showCampaignSho
    <main className="mx-auto w-full max-w-[1600px] p-3 sm:p-5 lg:p-7 xl:p-8">
     {children}
    </main>
+   <footer className="border-t border-border bg-card px-4 py-4 text-center text-xs text-body sm:px-6 lg:px-8">CampaignOps · Villimalé 2026 · Secure campaign operations</footer>
   </div>
  </div></AuthGate>;
 }
