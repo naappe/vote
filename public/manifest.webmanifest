@@ -1,0 +1,19 @@
+{
+  "name": "CampaignOps",
+  "short_name": "CampaignOps",
+  "description": "Villimalé campaign operations desktop app",
+  "start_url": "/Vote/",
+  "scope": "/Vote/",
+  "display": "standalone",
+  "background_color": "#f0f5fa",
+  "theme_color": "#0066ff",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/Vote/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
