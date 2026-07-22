@@ -2,8 +2,8 @@ import type {ReactNode} from 'react';
 import type {Resident} from '../lib/types';
 import {ResidentIdentity} from './ResidentIdentity';
 
-export function ResidentCard({resident,children,actions,selected=false,onClick}:{resident:Resident;children?:ReactNode;actions?:ReactNode;selected?:boolean;onClick?:()=>void}){
- return <article className={`soft-card flex h-full flex-col ${onClick?'cursor-pointer':''} ${selected?'ring-2 ring-primary':''}`} onClick={onClick}>
+export function ResidentCard({resident,children,actions,selected=false,onClick}:{resident:Resident;children?:ReactNode;actions?:ReactNode;selected?:boolean;onClick?:()=>void;className?:string}){
+ return <article className={`soft-card flex h-full flex-col ${className||''} ${onClick?'cursor-pointer':''} ${selected?'ring-2 ring-primary':''}`} onClick={onClick}>
   <ResidentIdentity resident={resident}/>
   {children&&<div className="mt-4 flex-1">{children}</div>}
   {actions&&<div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-4">{actions}</div>}
