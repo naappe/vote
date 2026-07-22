@@ -27,21 +27,27 @@ const groups=[
   {label:'Dashboard',href:'/',icon:'dashboard'},
   {label:'Residents',href:'/residents/',icon:'residents'},
  ]},
+ {label:'Work Planning',items:[
+  {label:'Assignments',href:'/assignments/',icon:'assignments'},
+ ]},
  {label:'Outreach',items:[
   {label:'Call Center',href:'/call-center/',icon:'calls'},
   {label:'Door-to-Door',href:'/door-to-door/',icon:'visits'},
  ]},
- {label:'Planning & Follow-up',items:[
-  {label:'Assignments',href:'/assignments/',icon:'assignments'},
+ {label:'Follow-up',items:[
   {label:'Remarks',href:'/remarks/',icon:'remarks'},
  ]},
  {label:'Election Operations',items:[
   {label:'Election Day',href:'/election-day/',icon:'election'},
   {label:'Transportation',href:'/transportation/',icon:'transport'},
  ]},
- {label:'Control',items:[
+ {label:'Data Quality',items:[
   {label:'Contact Verification',href:'/contact-verification/',icon:'verify'},
+ ]},
+ {label:'Insights',items:[
   {label:'Reports',href:'/reports/',icon:'reports'},
+ ]},
+ {label:'Administration',items:[
   {label:'User Management',href:'/users/',icon:'users'},
   {label:'Admin Backup',href:'/backup/',icon:'backup'},
  ]},
