@@ -1,16 +1,16 @@
 'use client';
 import {useEffect,useMemo,useState} from 'react';
-import {getResidentChangeRequests,reviewResidentChangeRequest} from '../lib/supabase';
+import {getResidentChangeRequests,reviewResidentChangeRequest,supabase} from '../lib/supabase';
 import type {ResidentChangeRequest} from '../lib/supabase';
 
 export default function AdminVerificationContent(){
- const [rows,setRows]=useState<ResidentChangeRequest[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[query,setQuery]=useState(''),[busy,setBusy]=useState<string>('');
- async function load(){setLoading(true);setError('');try{setRows(await getResidentChangeRequests('pending'))}catch(e){setError(e instanceof Error?e.message:'Unable to load verification requests')}finally{setLoading(false)}}
+ const [rows,setRows]=useState<ResidentChangeRequest[]>([]),[missingPhone,setMissingPhone]=useState(0),[loading,setLoading]=useState(true),[error,setError]=useState(''),[query,setQuery]=useState(''),[busy,setBusy]=useState<string>('');
+ async function load(){setLoading(true);setError('');try{const [requests,phones]=await Promise.all([getResidentChangeRequests('pending'),supabase.from('Resident').select('id',{count:'exact',head:true}).is('phone',null)]);if(phones.error)throw phones.error;setRows(requests);setMissingPhone(phones.count||0)}catch(e){setError(e instanceof Error?e.message:'Unable to load verification requests')}finally{setLoading(false)}}
  useEffect(()=>{load()},[]);
  const visible=useMemo(()=>rows.filter(r=>[r.resident?.name,r.resident?.national_id,r.resident?.house,r.requested_phone,r.requested_lives_in].join(' ').toLowerCase().includes(query.toLowerCase())),[rows,query]);
  async function decide(row:ResidentChangeRequest,decision:'approved'|'rejected'){const id=String(row.id);setBusy(id);setError('');try{await reviewResidentChangeRequest(row,decision);setRows(current=>current.filter(item=>String(item.id)!==id))}catch(e){setError(e instanceof Error?e.message:'Unable to save review')}finally{setBusy('')}}
  return <div className="space-y-6">
-  <section className="brand-card"><p className="eyebrow">Administration</p><div className="mt-2 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><h1>Contact verification</h1><p className="mt-2 max-w-2xl text-body">Review mobile and current-living-place corrections before they update the verified resident database.</p></div><div className="metric-card min-w-36"><p className="eyebrow">Pending</p><strong className="mt-1 block text-3xl text-navy">{rows.length}</strong></div></div></section>
+  <section className="brand-card"><p className="eyebrow">Administration</p><div className="mt-2 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><h1>Contact verification</h1><p className="mt-2 max-w-2xl text-body">Review mobile and current-living-place corrections before they update the verified resident database.</p></div><div className="grid grid-cols-2 gap-3"><div className="metric-card min-w-32"><p className="eyebrow">Pending corrections</p><strong className="mt-1 block text-3xl text-navy">{rows.length}</strong></div><div className="metric-card min-w-32"><p className="eyebrow">Missing mobile</p><strong className="mt-1 block text-3xl text-amber-500">{missingPhone}</strong></div></div></div></section>
   <section className="panel"><label className="block"><span className="eyebrow mb-2 block">Search requests</span><input className="field" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Name, ID, house, mobile or living place"/></label></section>
   {error&&<div className="error-banner">{error}</div>}
   <section className="space-y-4" aria-busy={loading}>{loading?Array.from({length:4}).map((_,i)=><div key={i} className="h-56 animate-pulse rounded-card bg-primary-light"/>):visible.length?visible.map(row=><article key={String(row.id)} className="brand-card">
@@ -18,7 +18,7 @@ export default function AdminVerificationContent(){
    <div className="mt-5 grid gap-4 md:grid-cols-2"><ChangeBlock label="Mobile" oldValue={row.existing_phone} newValue={row.requested_phone}/><ChangeBlock label="Living place" oldValue={row.existing_lives_in} newValue={row.requested_lives_in}/></div>
    {row.request_note&&<div className="notice-card mt-4"><p className="eyebrow">Request note</p><p className="mt-1 whitespace-pre-wrap text-sm text-navy">{row.request_note}</p></div>}
    <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"><button className="btn-secondary" disabled={busy===String(row.id)} onClick={()=>decide(row,'rejected')}>Reject</button><button className="btn-primary" disabled={busy===String(row.id)} onClick={()=>decide(row,'approved')}>{busy===String(row.id)?'Saving…':'Approve and update'}</button></div>
-  </article>):<div className="panel py-14 text-center"><h2>No pending corrections</h2><p className="mt-2 text-body">All submitted mobile and living-place changes have been reviewed.</p></div>}</section>
+  </article>):<div className="panel py-14 text-center"><h2>No pending corrections</h2><p className="mt-2 text-body">All submitted mobile and living-place changes have been reviewed.</p>{missingPhone>0&&<p className="mt-4 text-sm font-semibold text-amber-600">{missingPhone} residents still have no mobile number recorded.</p>}</div>}</section>
  </div>
 }
 function ChangeBlock({label,oldValue,newValue}:{label:string;oldValue?:string|null;newValue?:string|null}){const changed=(oldValue||'')!==(newValue||'');return <div className="rounded-card bg-primary-light p-4"><p className="eyebrow">{label}</p><div className="mt-3 grid gap-3 sm:grid-cols-2"><div><span className="text-xs text-body">Current verified</span><p className="mt-1 font-semibold text-navy">{oldValue||'Not recorded'}</p></div><div><span className="text-xs text-body">Submitted correction</span><p className={`mt-1 font-semibold ${changed?'text-primary':'text-body'}`}>{newValue||'No change'}</p></div></div></div>}
